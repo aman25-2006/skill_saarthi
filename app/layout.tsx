@@ -1,5 +1,10 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
 
 export const metadata: Metadata = {
   title: 'Skill Saarthi - Track Employment Outcomes & Measure Skilling Impact',
@@ -13,7 +18,6 @@ export const metadata: Metadata = {
     'career development',
   ],
   authors: [{ name: 'Skill Saarthi Team' }],
-  viewport: 'width=device-width, initial-scale=1.0',
   robots: 'index, follow',
   openGraph: {
     type: 'website',
