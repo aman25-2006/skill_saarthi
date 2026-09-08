@@ -15,31 +15,19 @@ import {
   Brain,
   ShieldCheck,
   Search,
-  Filter,
   Download,
   FileText,
   Clock,
   LogOut,
   Sparkles,
-  ExternalLink,
-  ChevronRight,
   Eye,
   CheckCircle2,
-  XCircle,
-  HelpCircle,
   Building,
   MapPin,
-  Calendar,
-  DollarSign,
   Landmark,
   Bell,
   Settings,
   Layers,
-  ArrowRight,
-  Shield,
-  ThumbsUp,
-  Check,
-  X,
 } from 'lucide-react';
 
 type GovTabType =
@@ -56,6 +44,13 @@ type GovTabType =
   | 'alerts'
   | 'ai-insights';
 
+interface EvidenceTrailItem {
+  type: string;
+  source: string;
+  weight: string;
+  status: 'verified' | 'pending' | 'review' | 'conflict';
+}
+
 interface StudentRecord {
   id: string;
   name: string;
@@ -67,6 +62,11 @@ interface StudentRecord {
   followUpStatus: '3-Month Done' | '6-Month Active' | '12-Month Due' | 'Completed';
   completionDate: string;
   skills: string[];
+  evidenceStatus: 'Verified Outcome' | 'Needs Review' | 'Unverified Outcome' | 'Follow-up Pending' | 'Conflicted';
+  confidenceScore: number; // 0 - 100%
+  sustainableIndex: number; // 0 - 100
+  jobRelevance: 'Direct' | 'Partial' | 'None';
+  evidenceTrail: EvidenceTrailItem[];
 }
 
 export default function GovernmentOfficerPortalPage() {
@@ -77,10 +77,22 @@ export default function GovernmentOfficerPortalPage() {
 
   // Modals & Drawers
   const [selectedStudent, setSelectedStudent] = useState<StudentRecord | null>(null);
+  const [selectedEvidenceStudent, setSelectedEvidenceStudent] = useState<StudentRecord | null>(null);
+  const [showConfigPolicyModal, setShowConfigPolicyModal] = useState<boolean>(false);
   const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
   const [showNotificationsDrawer, setShowNotificationsDrawer] = useState<boolean>(false);
   const [showOfficerSettingsModal, setShowOfficerSettingsModal] = useState<boolean>(false);
   const [reportToast, setReportToast] = useState<string>('');
+
+  // Configurable Evidence Policy State (Pillar 4)
+  const [evidencePolicy, setEvidencePolicy] = useState({
+    learnerConfirmationWeight: 30,
+    supportingDocWeight: 35,
+    institutionalRosterWeight: 17,
+    providentFundCrossCheckWeight: 18,
+    verificationThreshold: 75, // Scores >= 75% are "Verified Outcome"
+    reviewThreshold: 50,       // Scores 50-74% are "Needs Review"
+  });
 
   // Officer Profile
   const [officerProfile, setOfficerProfile] = useState({
@@ -114,7 +126,7 @@ export default function GovernmentOfficerPortalPage() {
     }
   }, []);
 
-  // Mock Student Registry Database
+  // Mock Student Registry Database with 5-State Taxonomy (Pillar 1, 5, 6)
   const [studentsList] = useState<StudentRecord[]>([
     {
       id: 'SS-2026-849201',
@@ -127,6 +139,16 @@ export default function GovernmentOfficerPortalPage() {
       followUpStatus: '6-Month Active',
       completionDate: '10 Jan 2025',
       skills: ['React.js', 'Python', 'PostgreSQL', 'Tailwind CSS', 'Git'],
+      evidenceStatus: 'Verified Outcome',
+      confidenceScore: 88,
+      sustainableIndex: 92,
+      jobRelevance: 'Direct',
+      evidenceTrail: [
+        { type: 'Learner 3M/6M Attestation', source: 'WhatsApp Micro-Survey', weight: '+30%', status: 'verified' },
+        { type: 'Documentary Proof', source: 'Offer Letter & TechNova Salary Slip', weight: '+35%', status: 'verified' },
+        { type: 'Institutional Cross-Check', source: 'Muzaffarpur CoE Placement Roster', weight: '+17%', status: 'verified' },
+        { type: 'Consistency Audit', source: 'No discrepancy flagged', weight: '+6%', status: 'verified' },
+      ],
     },
     {
       id: 'SS-2026-712903',
@@ -139,6 +161,16 @@ export default function GovernmentOfficerPortalPage() {
       followUpStatus: '3-Month Done',
       completionDate: '15 Feb 2025',
       skills: ['Python', 'SQL', 'Power BI', 'Excel Advanced'],
+      evidenceStatus: 'Verified Outcome',
+      confidenceScore: 92,
+      sustainableIndex: 95,
+      jobRelevance: 'Direct',
+      evidenceTrail: [
+        { type: 'Learner 3M Confirmation', source: 'Portal Micro-Check', weight: '+30%', status: 'verified' },
+        { type: 'Corporate Tax / UAN Record', source: 'EPFO Cross-Reference', weight: '+38%', status: 'verified' },
+        { type: 'Institutional Match', source: 'Patna Skill Hub Roster', weight: '+18%', status: 'verified' },
+        { type: 'Wage Escrow Audit', source: 'Bank credit match verified', weight: '+6%', status: 'verified' },
+      ],
     },
     {
       id: 'SS-2026-641029',
@@ -151,6 +183,16 @@ export default function GovernmentOfficerPortalPage() {
       followUpStatus: '3-Month Done',
       completionDate: '20 Nov 2024',
       skills: ['PV Installation', 'Grid Inverters', 'Electrical Safety'],
+      evidenceStatus: 'Needs Review',
+      confidenceScore: 64,
+      sustainableIndex: 71,
+      jobRelevance: 'Partial',
+      evidenceTrail: [
+        { type: 'Learner Self-Report', source: 'SMS Checkpoint Confirmed', weight: '+30%', status: 'verified' },
+        { type: 'Institutional Roster', source: 'Gaya Institute Listed as Placed', weight: '+17%', status: 'verified' },
+        { type: 'Documentary Proof', source: 'Salary slip awaiting upload', weight: '0%', status: 'pending' },
+        { type: 'Relevance Review', source: 'Electrical maintenance (Partial match)', weight: '+17%', status: 'review' },
+      ],
     },
     {
       id: 'SS-2026-519284',
@@ -163,6 +205,15 @@ export default function GovernmentOfficerPortalPage() {
       followUpStatus: '6-Month Active',
       completionDate: '05 Jan 2025',
       skills: ['SEO', 'Meta Ads', 'Content Strategy', 'Google Analytics'],
+      evidenceStatus: 'Verified Outcome',
+      confidenceScore: 82,
+      sustainableIndex: 86,
+      jobRelevance: 'Direct',
+      evidenceTrail: [
+        { type: 'Learner Self-Employment Report', source: 'WhatsApp Micro-Survey', weight: '+30%', status: 'verified' },
+        { type: 'Client Invoices / GSTN', source: 'GST & Freelance Contracts', weight: '+35%', status: 'verified' },
+        { type: 'Center Verification', source: 'Entrepreneurship incubation confirmed', weight: '+17%', status: 'verified' },
+      ],
     },
     {
       id: 'SS-2026-482019',
@@ -175,6 +226,15 @@ export default function GovernmentOfficerPortalPage() {
       followUpStatus: '6-Month Active',
       completionDate: '12 Jan 2025',
       skills: ['HTML/CSS', 'Basic JavaScript', 'WordPress'],
+      evidenceStatus: 'Unverified Outcome',
+      confidenceScore: 18,
+      sustainableIndex: 12,
+      jobRelevance: 'None',
+      evidenceTrail: [
+        { type: 'Learner Follow-up', source: 'Reports placement barrier: Interview skill gap', weight: '+18%', status: 'verified' },
+        { type: 'Employer Record', source: 'No placement offer submitted', weight: '0%', status: 'pending' },
+        { type: 'Note', source: 'Never equate Unverified with Unemployed', weight: '0%', status: 'pending' },
+      ],
     },
     {
       id: 'SS-2026-391827',
@@ -187,6 +247,15 @@ export default function GovernmentOfficerPortalPage() {
       followUpStatus: '12-Month Due',
       completionDate: '10 Aug 2024',
       skills: ['Patient Vitals', 'Emergency Response', 'Medical Records'],
+      evidenceStatus: 'Follow-up Pending',
+      confidenceScore: 50,
+      sustainableIndex: 68,
+      jobRelevance: 'Direct',
+      evidenceTrail: [
+        { type: 'Historical 3M/6M Check', source: 'Previously verified at Apollo Clinic', weight: '+35%', status: 'verified' },
+        { type: '12-Month Checkpoint', source: 'Notification dispatched; response pending', weight: '0%', status: 'pending' },
+        { type: 'Status', source: 'Follow-up in progress', weight: '+15%', status: 'pending' },
+      ],
     },
     {
       id: 'SS-2026-281940',
@@ -199,6 +268,15 @@ export default function GovernmentOfficerPortalPage() {
       followUpStatus: '3-Month Done',
       completionDate: '28 Feb 2025',
       skills: ['Node.js', 'React.js', 'MongoDB'],
+      evidenceStatus: 'Conflicted',
+      confidenceScore: 42,
+      sustainableIndex: 35,
+      jobRelevance: 'Partial',
+      evidenceTrail: [
+        { type: 'Learner Report', source: 'Reports contract terminated after 45 days', weight: '+20%', status: 'conflict' },
+        { type: 'Provider Report', source: 'Center claimed active 1-year apprenticeship', weight: '+22%', status: 'conflict' },
+        { type: 'Conflict Resolution', source: 'Discrepancy flagged: Officer audit scheduled', weight: '0%', status: 'conflict' },
+      ],
     },
   ]);
 
@@ -207,6 +285,7 @@ export default function GovernmentOfficerPortalPage() {
   const [districtFilter, setDistrictFilter] = useState('All');
   const [programFilter, setProgramFilter] = useState('All');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [evidenceFilter, setEvidenceFilter] = useState('All');
 
   const filteredStudents = useMemo(() => {
     return studentsList.filter((s) => {
@@ -217,9 +296,10 @@ export default function GovernmentOfficerPortalPage() {
       const matchesDistrict = districtFilter === 'All' || s.district === districtFilter;
       const matchesProgram = programFilter === 'All' || s.program.toLowerCase().includes(programFilter.toLowerCase());
       const matchesStatus = statusFilter === 'All' || s.status === statusFilter;
-      return matchesSearch && matchesDistrict && matchesProgram && matchesStatus;
+      const matchesEvidence = evidenceFilter === 'All' || s.evidenceStatus === evidenceFilter;
+      return matchesSearch && matchesDistrict && matchesProgram && matchesStatus && matchesEvidence;
     });
-  }, [studentsList, searchQuery, districtFilter, programFilter, statusFilter]);
+  }, [studentsList, searchQuery, districtFilter, programFilter, statusFilter, evidenceFilter]);
 
   // Trigger Report Download Toast
   const triggerReportDownload = (reportName: string, format: string) => {
@@ -450,6 +530,62 @@ export default function GovernmentOfficerPortalPage() {
                 </div>
               </div>
 
+              {/* Outcome Evidence & Sustainable Outcome Index Master Strip (Pillars 1, 6, 7) */}
+              <div className="bg-gradient-to-r from-primary-navy via-deep-navy to-slate-900 text-white rounded-2xl p-5 sm:p-6 shadow-md space-y-4">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 pb-3 border-b border-white/15">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-saffron bg-orange-500/20 px-2.5 py-0.5 rounded-full border border-orange-400/30">
+                      Outcome Evidence Engine • Longitudinal Intelligence
+                    </span>
+                    <h2 className="text-xl font-bold">The Sustainable Livelihood Equation</h2>
+                    <p className="text-xs text-blue-100 max-w-2xl leading-relaxed">
+                      &ldquo;The certificate is not the outcome. What happens after the certificate is.&rdquo; Skill Saarthi separates vanity placement counts from verifiable 6–24 month economic retention.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <span className="text-[10px] text-blue-200 block uppercase tracking-wider">Sustainable Outcome Index</span>
+                      <span className="text-2xl font-extrabold text-saffron">78.4 <span className="text-xs font-normal text-white">/ 100</span></span>
+                    </div>
+                    <button
+                      onClick={() => setShowConfigPolicyModal(true)}
+                      className="bg-white/10 hover:bg-white/20 text-white px-3 py-2 rounded-lg text-xs font-bold border border-white/20 transition-all flex items-center gap-1.5"
+                    >
+                      <Settings size={14} /> Configure Policy
+                    </button>
+                  </div>
+                </div>
+
+                {/* 5-Stage Comparative Pipeline */}
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center text-xs">
+                  <div className="p-3 bg-white/5 rounded-xl border border-white/10">
+                    <span className="text-[10px] text-blue-200 block">1. Initial Reported Placed</span>
+                    <span className="text-lg font-bold text-white block mt-0.5">75.0%</span>
+                    <span className="text-[10px] text-blue-300">32,100 Learners</span>
+                  </div>
+                  <div className="p-3 bg-blue-500/10 rounded-xl border border-blue-400/30">
+                    <span className="text-[10px] text-blue-200 block">2. Verified Outcomes (≥75% Conf.)</span>
+                    <span className="text-lg font-bold text-blue-300 block mt-0.5">71.2%</span>
+                    <span className="text-[10px] text-blue-200">30,550 Cross-Checked</span>
+                  </div>
+                  <div className="p-3 bg-green-500/10 rounded-xl border border-green-400/30">
+                    <span className="text-[10px] text-green-200 block">3. 6-Month Sustained Retention</span>
+                    <span className="text-lg font-bold text-success-green block mt-0.5">63.1%</span>
+                    <span className="text-[10px] text-green-300">27,000 Active in Jobs</span>
+                  </div>
+                  <div className="p-3 bg-orange-500/10 rounded-xl border border-orange-400/30">
+                    <span className="text-[10px] text-orange-200 block">4. Wage Progression Delta</span>
+                    <span className="text-lg font-bold text-saffron block mt-0.5">+78%</span>
+                    <span className="text-[10px] text-orange-200">₹12k → ₹21.4k Avg</span>
+                  </div>
+                  <div className="p-3 bg-purple-500/10 rounded-xl border border-purple-400/30">
+                    <span className="text-[10px] text-purple-200 block">5. Training-Job Relevance</span>
+                    <span className="text-lg font-bold text-purple-300 block mt-0.5">84.5%</span>
+                    <span className="text-[10px] text-purple-200">High Curricular Match</span>
+                  </div>
+                </div>
+              </div>
+
               {/* 6 Core Outcome Snapshot KPI Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
                 <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs">
@@ -463,20 +599,20 @@ export default function GovernmentOfficerPortalPage() {
 
                 <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs">
                   <div className="flex items-center justify-between text-text-muted mb-1.5">
-                    <span className="text-xs font-medium uppercase tracking-wider">Trained / Certified</span>
+                    <span className="text-xs font-medium uppercase tracking-wider">Certified</span>
                     <Award size={16} className="text-primary-blue" />
                   </div>
                   <p className="text-xl font-bold text-primary-blue">42,800</p>
-                  <p className="text-[11px] text-success-green font-semibold mt-0.5">88.7% Completion Rate</p>
+                  <p className="text-[11px] text-success-green font-semibold mt-0.5">88.7% Completion</p>
                 </div>
 
                 <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs">
                   <div className="flex items-center justify-between text-text-muted mb-1.5">
-                    <span className="text-xs font-medium uppercase tracking-wider">Placed / Employed</span>
-                    <Briefcase size={16} className="text-success-green" />
+                    <span className="text-xs font-medium uppercase tracking-wider">Verified Outcomes</span>
+                    <ShieldCheck size={16} className="text-success-green" />
                   </div>
-                  <p className="text-xl font-bold text-success-green">32,100</p>
-                  <p className="text-[11px] text-success-green font-semibold mt-0.5">75.0% Placement Rate</p>
+                  <p className="text-xl font-bold text-success-green">30,550</p>
+                  <p className="text-[11px] text-success-green font-semibold mt-0.5">71.2% Evidence Confirmed</p>
                 </div>
 
                 <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs">
@@ -485,7 +621,7 @@ export default function GovernmentOfficerPortalPage() {
                     <TrendingUp size={16} className="text-saffron" />
                   </div>
                   <p className="text-xl font-bold text-saffron">₹21,400 <span className="text-xs font-normal">/mo</span></p>
-                  <p className="text-[11px] text-success-green font-semibold mt-0.5">+78% Longitudinal Growth</p>
+                  <p className="text-[11px] text-success-green font-semibold mt-0.5">+78% Longitudinal Delta</p>
                 </div>
 
                 <div className="bg-white p-4 rounded-xl border border-orange-200 shadow-xs bg-gradient-to-br from-orange-50/50 to-white">
@@ -503,7 +639,7 @@ export default function GovernmentOfficerPortalPage() {
                     <Landmark size={16} className="text-purple-600" />
                   </div>
                   <p className="text-xl font-bold text-purple-700">₹18.4 Cr</p>
-                  <p className="text-[11px] text-purple-600 font-semibold mt-0.5">6.6x Budget Return</p>
+                  <p className="text-[11px] text-purple-600 font-semibold mt-0.5">6.6x Budget Multiplier</p>
                 </div>
               </div>
 
@@ -618,22 +754,36 @@ export default function GovernmentOfficerPortalPage() {
             >
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div>
-                  <h2 className="text-2xl font-bold text-primary-navy">Student Outcome Registry</h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-2xl font-bold text-primary-navy">Student Outcome &amp; Evidence Registry</h2>
+                    <span className="text-[11px] bg-blue-100 text-primary-navy font-bold px-2.5 py-0.5 rounded-full border border-blue-200">
+                      Outcome Evidence Engine Active
+                    </span>
+                  </div>
                   <p className="text-xs sm:text-sm text-text-muted mt-0.5">
-                    Individual learner telemetry, longitudinal wage records, and follow-up survey histories.
+                    Separating Outcome Status, Evidence Confidence, and Sustainable Livelihood Quality per learner record.
                   </p>
                 </div>
-                <button
-                  onClick={() => triggerReportDownload('Complete_Learners_Registry', 'excel')}
-                  className="inline-flex items-center gap-2 bg-saffron text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-orange-600 transition-all shadow-xs"
-                >
-                  <Download size={14} /> Export Student Data (Excel)
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setShowConfigPolicyModal(true)}
+                    className="inline-flex items-center gap-1.5 bg-white border border-gray-300 text-primary-navy px-3.5 py-2 rounded-lg text-xs font-bold hover:bg-gray-50 transition-all shadow-xs"
+                  >
+                    <Settings size={14} className="text-saffron" />
+                    Configure Evidence Policy
+                  </button>
+                  <button
+                    onClick={() => triggerReportDownload('Complete_Learners_Registry', 'excel')}
+                    className="inline-flex items-center gap-2 bg-saffron text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-orange-600 transition-all shadow-xs"
+                  >
+                    <Download size={14} /> Export Registry (Excel)
+                  </button>
+                </div>
               </div>
 
-              {/* Search & Multi-Filter Bar */}
+              {/* Search & 5-Parameter Filter Bar */}
               <div className="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm space-y-3">
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 text-xs">
                   {/* Search Bar */}
                   <div className="relative sm:col-span-1">
                     <input
@@ -644,6 +794,22 @@ export default function GovernmentOfficerPortalPage() {
                       className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-saffron"
                     />
                     <Search size={15} className="absolute left-3 top-2.5 text-text-muted" />
+                  </div>
+
+                  {/* Filter by Evidence Status (Pillar 1) */}
+                  <div>
+                    <select
+                      value={evidenceFilter}
+                      onChange={(e) => setEvidenceFilter(e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg border border-orange-200 bg-orange-50/40 text-text-dark font-semibold focus:outline-none focus:ring-2 focus:ring-saffron"
+                    >
+                      <option value="All">All Evidence States (5 Tiers)</option>
+                      <option value="Verified Outcome">🟢 Verified Outcome (≥75%)</option>
+                      <option value="Needs Review">🟡 Needs Review (50-74%)</option>
+                      <option value="Unverified Outcome">🔴 Unverified Outcome</option>
+                      <option value="Follow-up Pending">⚪ Follow-up Pending</option>
+                      <option value="Conflicted">⚠️ Conflicted / Discrepancy</option>
+                    </select>
                   </div>
 
                   {/* Filter by District */}
@@ -678,36 +844,36 @@ export default function GovernmentOfficerPortalPage() {
                     </select>
                   </div>
 
-                  {/* Filter by Employment Status */}
+                  {/* Filter by Livelihood Status */}
                   <div>
                     <select
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
                       className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-saffron"
                     >
-                      <option value="All">All Statuses</option>
-                      <option value="Employed">Employed</option>
-                      <option value="Unemployed">Unemployed</option>
+                      <option value="All">All Reported Livelihoods</option>
+                      <option value="Employed">Employed (Full-Time)</option>
+                      <option value="Self-Employed">Self-Employed / Freelance</option>
                       <option value="Apprenticeship">Apprenticeship</option>
-                      <option value="Self-Employed">Self-Employed</option>
+                      <option value="Unemployed">Unemployed / Seeking</option>
                     </select>
                   </div>
                 </div>
               </div>
 
-              {/* Student Table */}
+              {/* Student Evidence & Outcome Table */}
               <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead className="bg-gray-50 border-b border-gray-200 text-text-muted uppercase tracking-wider font-semibold">
                       <tr>
-                        <th className="py-3 px-4">Student ID &amp; Name</th>
-                        <th className="py-3 px-4">District</th>
-                        <th className="py-3 px-4">Training Program</th>
-                        <th className="py-3 px-4">Employment Status</th>
-                        <th className="py-3 px-4">Current Wage</th>
-                        <th className="py-3 px-4">Follow-Up State</th>
-                        <th className="py-3 px-4 text-right">Action</th>
+                        <th className="py-3 px-4">Student &amp; ID</th>
+                        <th className="py-3 px-4">District &amp; Training</th>
+                        <th className="py-3 px-4">Outcome Evidence Status</th>
+                        <th className="py-3 px-4">Evidence Confidence</th>
+                        <th className="py-3 px-4">Sustainable Index</th>
+                        <th className="py-3 px-4">Verified Wage &amp; Relevance</th>
+                        <th className="py-3 px-4 text-right">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
@@ -717,35 +883,62 @@ export default function GovernmentOfficerPortalPage() {
                             <span className="font-bold text-text-dark block">{s.name}</span>
                             <span className="text-[10px] text-text-muted font-mono">{s.id}</span>
                           </td>
-                          <td className="py-3 px-4 font-medium text-text-dark">{s.district}</td>
-                          <td className="py-3 px-4 text-text-muted truncate max-w-[200px]">{s.program}</td>
+                          <td className="py-3 px-4">
+                            <span className="font-medium text-text-dark block">{s.district}</span>
+                            <span className="text-text-muted text-[11px] truncate max-w-[170px] block">{s.program}</span>
+                          </td>
                           <td className="py-3 px-4">
                             <span
-                              className={`px-2.5 py-0.5 rounded-full font-bold text-[10px] ${
-                                s.status === 'Employed'
+                              className={`px-2.5 py-1 rounded-full font-bold text-[10px] inline-flex items-center gap-1 ${
+                                s.evidenceStatus === 'Verified Outcome'
                                   ? 'bg-green-50 text-success-green border border-green-200'
-                                  : s.status === 'Apprenticeship'
-                                  ? 'bg-blue-50 text-primary-blue border border-blue-200'
-                                  : s.status === 'Self-Employed'
-                                  ? 'bg-purple-50 text-purple-700 border border-purple-200'
-                                  : 'bg-red-50 text-red-700 border border-red-200'
+                                  : s.evidenceStatus === 'Needs Review'
+                                  ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                                  : s.evidenceStatus === 'Unverified Outcome'
+                                  ? 'bg-red-50 text-red-700 border border-red-200'
+                                  : s.evidenceStatus === 'Follow-up Pending'
+                                  ? 'bg-gray-100 text-gray-700 border border-gray-300'
+                                  : 'bg-orange-100 text-orange-800 border border-orange-300'
                               }`}
                             >
-                              {s.status}
+                              {s.evidenceStatus === 'Verified Outcome' && '🟢'}
+                              {s.evidenceStatus === 'Needs Review' && '🟡'}
+                              {s.evidenceStatus === 'Unverified Outcome' && '🔴'}
+                              {s.evidenceStatus === 'Follow-up Pending' && '⚪'}
+                              {s.evidenceStatus === 'Conflicted' && '⚠️'}
+                              {s.evidenceStatus}
                             </span>
                           </td>
-                          <td className="py-3 px-4 font-bold text-primary-navy">
-                            {s.salary > 0 ? `₹${s.salary.toLocaleString('en-IN')}/mo` : '—'}
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-primary-navy text-sm">{s.confidenceScore}%</span>
+                              <button
+                                onClick={() => setSelectedEvidenceStudent(s)}
+                                className="text-[10px] bg-blue-50 text-primary-blue hover:bg-blue-100 border border-blue-200 px-2 py-0.5 rounded font-semibold transition-colors whitespace-nowrap"
+                              >
+                                Audit Trail →
+                              </button>
+                            </div>
                           </td>
                           <td className="py-3 px-4">
-                            <span className="text-[11px] text-text-muted">{s.followUpStatus}</span>
+                            <span className="font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full border border-purple-200">
+                              {s.sustainableIndex} / 100
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className="font-bold text-primary-navy block">
+                              {s.salary > 0 ? `₹${s.salary.toLocaleString('en-IN')}/mo` : 'Unplaced'}
+                            </span>
+                            <span className="text-[10px] text-text-muted">
+                              Relevance: <span className="font-semibold text-text-dark">{s.jobRelevance}</span>
+                            </span>
                           </td>
                           <td className="py-3 px-4 text-right">
                             <button
                               onClick={() => setSelectedStudent(s)}
-                              className="bg-orange-50 text-saffron hover:bg-saffron hover:text-white px-3 py-1 rounded-lg font-bold transition-all"
+                              className="bg-gray-100 text-primary-navy hover:bg-primary-navy hover:text-white px-3 py-1 rounded-lg font-bold transition-all text-xs"
                             >
-                              View Dossier →
+                              Dossier →
                             </button>
                           </td>
                         </tr>
@@ -918,6 +1111,106 @@ export default function GovernmentOfficerPortalPage() {
                 </button>
               </div>
 
+              {/* Pillar 9: Provider Outcome Profile Comparison (Exposing Day-1 Placement Fallacy) */}
+              <div className="bg-gradient-to-br from-slate-900 via-primary-navy to-slate-900 rounded-2xl p-6 text-white shadow-lg space-y-5 border border-blue-900/50">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-white/10">
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded-full mb-1">
+                      <ShieldCheck size={13} /> Pillar 9: Longitudinal Provider Outcome Profiling
+                    </div>
+                    <h3 className="text-xl font-bold tracking-tight">Why Initial Placement Rates Mislead Government Funding</h3>
+                    <p className="text-xs text-blue-200 mt-0.5">
+                      Comparing Provider A vs Provider B reveals how day-1 placement metrics hide 6-month attrition and irrelevant job churn.
+                    </p>
+                  </div>
+                  <span className="text-[11px] font-mono px-2.5 py-1 rounded bg-white/10 text-white self-start sm:self-auto border border-white/10">
+                    Audit Cohort: 1,000 Certified Trainees Each
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Provider A */}
+                  <div className="bg-white/5 rounded-xl p-5 border border-emerald-500/30 hover:border-emerald-500/60 transition-all space-y-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/20 px-2 py-0.5 rounded">
+                          Sustainable Performer
+                        </span>
+                        <h4 className="text-base font-bold text-white mt-1">Provider A: Muzaffarpur Center of Excellence</h4>
+                        <p className="text-xs text-blue-200">Full Stack Web &amp; Cloud Cohort</p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[10px] text-gray-300 block">Sustainable Index (SOI)</span>
+                        <span className="text-2xl font-bold text-emerald-400">86/100</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-white/10 text-xs">
+                      <div className="bg-white/5 p-2 rounded-lg">
+                        <span className="text-[10px] text-gray-300 block">Day-1 Placed</span>
+                        <span className="text-base font-bold text-white">84.0%</span>
+                      </div>
+                      <div className="bg-emerald-500/10 p-2 rounded-lg border border-emerald-500/20">
+                        <span className="text-[10px] text-emerald-300 block font-semibold">6M Retained</span>
+                        <span className="text-base font-bold text-emerald-400">71.2%</span>
+                      </div>
+                      <div className="bg-white/5 p-2 rounded-lg">
+                        <span className="text-[10px] text-gray-300 block">Wage Growth</span>
+                        <span className="text-base font-bold text-emerald-400">+24.5%</span>
+                      </div>
+                      <div className="bg-white/5 p-2 rounded-lg">
+                        <span className="text-[10px] text-gray-300 block">Job Relevance</span>
+                        <span className="text-base font-bold text-emerald-400">88.4%</span>
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-emerald-950/40 rounded-lg border border-emerald-500/20 text-xs text-emerald-200 leading-relaxed">
+                      <span className="font-bold text-emerald-300">Longitudinal Insight:</span> Trainees maintain long-term employment in high-skill tech roles with salary hikes from ₹22,000 to ₹28,000+. Eligible for 100% milestone incentive disbursement under MSDE outcome guidelines.
+                    </div>
+                  </div>
+
+                  {/* Provider B */}
+                  <div className="bg-white/5 rounded-xl p-5 border border-rose-500/30 hover:border-rose-500/60 transition-all space-y-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-rose-400 bg-rose-500/20 px-2 py-0.5 rounded">
+                          Flagged for High Attrition
+                        </span>
+                        <h4 className="text-base font-bold text-white mt-1">Provider B: Bhagalpur ITI Skill Annex</h4>
+                        <p className="text-xs text-blue-200">Hardware &amp; Web Cohort</p>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-[10px] text-gray-300 block">Sustainable Index (SOI)</span>
+                        <span className="text-2xl font-bold text-rose-400">41/100</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-white/10 text-xs">
+                      <div className="bg-white/5 p-2 rounded-lg">
+                        <span className="text-[10px] text-gray-300 block">Day-1 Placed</span>
+                        <span className="text-base font-bold text-amber-400">86.2%</span>
+                      </div>
+                      <div className="bg-rose-500/10 p-2 rounded-lg border border-rose-500/20">
+                        <span className="text-[10px] text-rose-300 block font-semibold">6M Retained</span>
+                        <span className="text-base font-bold text-rose-400">38.1%</span>
+                      </div>
+                      <div className="bg-white/5 p-2 rounded-lg">
+                        <span className="text-[10px] text-gray-300 block">Wage Growth</span>
+                        <span className="text-base font-bold text-rose-400">-2.1%</span>
+                      </div>
+                      <div className="bg-white/5 p-2 rounded-lg">
+                        <span className="text-[10px] text-gray-300 block">Job Relevance</span>
+                        <span className="text-base font-bold text-rose-400">34.0%</span>
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-rose-950/40 rounded-lg border border-rose-500/20 text-xs text-rose-200 leading-relaxed">
+                      <span className="font-bold text-rose-300">Longitudinal Insight:</span> High Day-1 placement (86.2%) masked that 52% of placements were informal short-term delivery gigs unrelated to syllabus. 62% quit by Month 6. Automatic milestone grant freeze triggered pending curriculum restructuring.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
@@ -1057,6 +1350,148 @@ export default function GovernmentOfficerPortalPage() {
                   </span>
                   <h3 className="text-2xl font-bold mt-1">Muzaffarpur, Bihar</h3>
                   <p className="text-xs text-orange-100 mt-1">Followed by Bhagalpur &amp; Gaya</p>
+                </div>
+              </div>
+
+              {/* Pillar 8: Non-Placement Intelligence System (WHAT -> WHY -> WHAT NEXT) */}
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-gray-100">
+                  <div>
+                    <div className="inline-flex items-center gap-1.5 text-[11px] font-bold text-saffron bg-orange-50 px-2.5 py-0.5 rounded-full mb-1">
+                      <Brain size={13} /> Pillar 8: Causal Non-Placement Intelligence
+                    </div>
+                    <h3 className="text-xl font-bold text-primary-navy">Non-Placement Intelligence: WHAT → WHY → WHAT NEXT</h3>
+                    <p className="text-xs text-text-muted mt-0.5">
+                      Transforming unplaced learner records from passive statistics into diagnostic root causes and targeted remedial actions.
+                    </p>
+                  </div>
+                  <span className="text-xs font-semibold text-text-muted bg-gray-100 px-3 py-1 rounded-full self-start sm:self-auto">
+                    Cohort: 5,980 Unplaced Learners (14.0%)
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  {/* STAGE 1: WHAT */}
+                  <div className="bg-gray-50 rounded-xl p-5 border border-gray-200 space-y-4">
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-full bg-primary-navy text-white text-xs font-bold flex items-center justify-center">1</span>
+                      <h4 className="font-bold text-primary-navy text-sm">WHAT: Unplaced Cohort</h4>
+                    </div>
+                    <div className="space-y-3 text-xs">
+                      <div className="p-3 bg-white rounded-lg border border-gray-200">
+                        <span className="text-text-muted block text-[11px]">Total Unplaced Cohort:</span>
+                        <span className="text-xl font-bold text-primary-navy">5,980 Learners</span>
+                        <span className="text-[10px] text-text-muted block mt-0.5">Across all registered trades in Bihar</span>
+                      </div>
+                      <div className="p-3 bg-white rounded-lg border border-gray-200">
+                        <span className="text-text-muted block text-[11px]">Average Post-Cert Window:</span>
+                        <span className="text-lg font-bold text-saffron">4.2 Months</span>
+                        <span className="text-[10px] text-text-muted block mt-0.5">Critical period before skill degradation sets in</span>
+                      </div>
+                      <div className="p-3 bg-white rounded-lg border border-gray-200">
+                        <span className="text-text-muted block text-[11px]">Active Job Seeking Rate:</span>
+                        <span className="text-lg font-bold text-success-green">86.4%</span>
+                        <span className="text-[10px] text-text-muted block mt-0.5">High motivation, blocked by specific structural friction</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* STAGE 2: WHY (Root Causes) */}
+                  <div className="bg-orange-50/40 rounded-xl p-5 border border-orange-200 space-y-4">
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-full bg-saffron text-white text-xs font-bold flex items-center justify-center">2</span>
+                      <h4 className="font-bold text-primary-navy text-sm">WHY: Causal Attribution</h4>
+                    </div>
+                    <div className="space-y-3 text-xs">
+                      <div>
+                        <div className="flex justify-between font-bold text-text-dark mb-1">
+                          <span>Technical Skill Gaps</span>
+                          <span className="text-saffron">48.2%</span>
+                        </div>
+                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-full bg-saffron rounded-full" style={{ width: '48.2%' }} />
+                        </div>
+                        <p className="text-[10px] text-text-muted mt-1">Lacked hands-on Cloud/DevOps tools demanded in job postings</p>
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between font-bold text-text-dark mb-1">
+                          <span>Interview &amp; Soft-Skills Screen</span>
+                          <span className="text-primary-blue">21.4%</span>
+                        </div>
+                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-full bg-primary-blue rounded-full" style={{ width: '21.4%' }} />
+                        </div>
+                        <p className="text-[10px] text-text-muted mt-1">Passed exam but struggled in technical English and situational rounds</p>
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between font-bold text-text-dark mb-1">
+                          <span>Salary vs Benchmark Gap</span>
+                          <span className="text-amber-600">12.1%</span>
+                        </div>
+                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-full bg-amber-500 rounded-full" style={{ width: '12.1%' }} />
+                        </div>
+                        <p className="text-[10px] text-text-muted mt-1">Offered entry ₹14k against ₹22k+ regional living cost expectation</p>
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between font-bold text-text-dark mb-1">
+                          <span>Relocation / Mobility Friction</span>
+                          <span className="text-purple-600">10.8%</span>
+                        </div>
+                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-full bg-purple-500 rounded-full" style={{ width: '10.8%' }} />
+                        </div>
+                        <p className="text-[10px] text-text-muted mt-1">Declined offers requiring migration outside home district</p>
+                      </div>
+
+                      <div>
+                        <div className="flex justify-between font-bold text-text-dark mb-1">
+                          <span>Local Market Saturation</span>
+                          <span className="text-gray-600">7.5%</span>
+                        </div>
+                        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                          <div className="h-full bg-gray-500 rounded-full" style={{ width: '7.5%' }} />
+                        </div>
+                        <p className="text-[10px] text-text-muted mt-1">Local trade saturation in specific rural sub-districts</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* STAGE 3: WHAT NEXT (Remediation Pathways) */}
+                  <div className="bg-emerald-50/40 rounded-xl p-5 border border-emerald-200 space-y-4">
+                    <div className="flex items-center gap-2">
+                      <span className="w-6 h-6 rounded-full bg-success-green text-white text-xs font-bold flex items-center justify-center">3</span>
+                      <h4 className="font-bold text-primary-navy text-sm">WHAT NEXT: Remediation</h4>
+                    </div>
+                    <div className="space-y-3 text-xs">
+                      <div className="p-3 bg-white rounded-lg border border-emerald-200 space-y-1">
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-primary-navy">30-Day Technical Bridge Modules</span>
+                          <span className="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 text-[10px] font-bold">2,880 Learners</span>
+                        </div>
+                        <p className="text-text-muted text-[11px]">Auto-invitation sent via WhatsApp bot for Cloud and DevOps bridge courses at district CoEs.</p>
+                      </div>
+
+                      <div className="p-3 bg-white rounded-lg border border-emerald-200 space-y-1">
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-primary-navy">AI Mock Interview Clinic</span>
+                          <span className="px-2 py-0.5 rounded bg-blue-100 text-blue-800 text-[10px] font-bold">1,280 Learners</span>
+                        </div>
+                        <p className="text-text-muted text-[11px]">Virtual voice/video interview practice with immediate feedback on technical communication.</p>
+                      </div>
+
+                      <div className="p-3 bg-white rounded-lg border border-emerald-200 space-y-1">
+                        <div className="flex justify-between items-center">
+                          <span className="font-bold text-primary-navy">Local Apprenticeship Matching</span>
+                          <span className="px-2 py-0.5 rounded bg-purple-100 text-purple-800 text-[10px] font-bold">1,370 Learners</span>
+                        </div>
+                        <p className="text-text-muted text-[11px]">Direct routing to NAPS/NATS stipend-supported apprenticeships within 25 km radius.</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -1437,44 +1872,216 @@ export default function GovernmentOfficerPortalPage() {
               exit={{ opacity: 0, y: -10 }}
               className="space-y-6"
             >
-              <div>
-                <div className="inline-flex items-center gap-1.5 text-xs font-bold text-saffron bg-orange-50 px-2.5 py-0.5 rounded-full mb-1">
-                  <Sparkles size={13} /> AI Macro Telemetry Engine
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 text-xs font-bold text-saffron bg-orange-50 px-2.5 py-0.5 rounded-full mb-1">
+                    <Sparkles size={13} /> Pillar 10 &amp; 11: Honest AI Telemetry Architecture
+                  </div>
+                  <h2 className="text-2xl font-bold text-primary-navy">AI Policy Insights &amp; Decision Intelligence</h2>
+                  <p className="text-xs sm:text-sm text-text-muted mt-0.5">
+                    Synthesizing longitudinal outcome data to recommend resource allocation and curriculum improvements with full epistemic humility.
+                  </p>
                 </div>
-                <h2 className="text-2xl font-bold text-primary-navy">AI Policy Insights &amp; Recommendations</h2>
-                <p className="text-xs sm:text-sm text-text-muted mt-0.5">
-                  Synthesizing longitudinal outcome data to recommend resource allocation and curriculum improvements.
-                </p>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-semibold text-text-muted bg-white border border-gray-200 px-3 py-1.5 rounded-lg shadow-xs flex items-center gap-1.5">
+                    <ShieldCheck size={14} className="text-success-green" /> DPDP Act 2023 Compliant
+                  </span>
+                </div>
               </div>
 
-              <div className="space-y-4">
-                <div className="p-6 bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-200 shadow-sm space-y-3">
-                  <div className="flex items-center gap-2 text-primary-navy font-bold text-sm">
-                    <Sparkles size={16} className="text-saffron" />
-                    <span>AI Key Outcome Discovery:</span>
+              {/* Epistemic Humility & Governance Strip */}
+              <div className="bg-blue-50/70 border border-blue-200 rounded-2xl p-4 text-xs text-primary-navy flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <Brain size={18} className="text-primary-blue flex-shrink-0" />
+                  <div>
+                    <span className="font-bold">Human-in-the-Loop Governance:</span> AI delivers structured <em>“Consider”</em> advisories with full evidence trails. Final budgetary and program decisions remain strictly under officer discretion.
                   </div>
-                  <p className="text-sm font-semibold text-text-dark leading-relaxed">
-                    &ldquo;Students completing Full Stack courses with Cloud Modules command a 23% higher employment rate
-                    and 38% higher starting wage than pure web cohorts.&rdquo;
-                  </p>
-                  <div className="pt-2 border-t border-blue-100 text-xs text-text-muted">
-                    <span className="font-bold text-primary-navy block mb-1">Recommended Policy Intervention:</span>
-                    Mandate 40 hours of practical Docker and Cloud training across all Tier-2 ITI curriculum batches starting Q3.
+                </div>
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-blue-100 text-primary-blue border border-blue-300 self-start sm:self-auto">
+                  Advisory Only
+                </span>
+              </div>
+
+              {/* Two-Phase Architecture Cards */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* PHASE 1: DETERMINISTIC HEURISTIC RULES (ACTIVE NOW) */}
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 space-y-4">
+                  <div className="flex justify-between items-start pb-3 border-b border-gray-100">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-success-green bg-green-50 px-2 py-0.5 rounded border border-green-200">
+                        Phase 1: Active in Production
+                      </span>
+                      <h3 className="text-base font-bold text-primary-navy mt-1">
+                        Deterministic Heuristic Engine
+                      </h3>
+                      <p className="text-xs text-text-muted">Multi-Source Cross-Verification &amp; Transparent Triangulation Rules</p>
+                    </div>
+                    <span className="text-xs font-mono font-bold bg-gray-50 px-2.5 py-1 rounded text-primary-navy border border-gray-200">
+                      100% Auditable
+                    </span>
+                  </div>
+
+                  <div className="space-y-3 text-xs">
+                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1">
+                      <div className="flex justify-between font-bold text-primary-navy">
+                        <span>Rule A: High-Confidence Triangulation</span>
+                        <span className="text-success-green">Score &ge; 75%</span>
+                      </div>
+                      <p className="text-text-muted text-[11px]">
+                        Learner WhatsApp micro-survey confirmed (+30%) + Salary slip / Offer letter uploaded (+35%) + Center roster match (+17%) &rarr; Verified Outcome.
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1">
+                      <div className="flex justify-between font-bold text-primary-navy">
+                        <span>Rule B: Single-Source Review Gate</span>
+                        <span className="text-amber-600">Score 50-74%</span>
+                      </div>
+                      <p className="text-text-muted text-[11px]">
+                        Learner confirms placement but documentary slip pending &rarr; Marked <em>Needs Review</em>. Automated reminder queued without penalizing student.
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1">
+                      <div className="flex justify-between font-bold text-primary-navy">
+                        <span>Rule C: Conflicted Outcome Flag</span>
+                        <span className="text-rose-600">Discrepancy Trigger</span>
+                      </div>
+                      <p className="text-text-muted text-[11px]">
+                        Training provider reports student as &ldquo;Placed&rdquo; but learner micro-survey reports &ldquo;Seeking Work&rdquo; &rarr; Auto-tagged ⚠️ Conflicted for inspection.
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1">
+                      <div className="flex justify-between font-bold text-primary-navy">
+                        <span>Rule D: Wage Outlier Detection</span>
+                        <span className="text-primary-blue">Audit Guard</span>
+                      </div>
+                      <p className="text-text-muted text-[11px]">
+                        Reported wage exceeds 2.5&times; district trade median &rarr; Routed to desk audit queue to prevent fraudulent subsidy claims.
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="p-6 bg-gradient-to-br from-orange-50 to-white rounded-2xl border border-orange-200 shadow-sm space-y-3">
-                  <div className="flex items-center gap-2 text-saffron font-bold text-sm">
-                    <Sparkles size={16} className="text-saffron" />
-                    <span>AI Budget Reallocation Recommendation:</span>
+                {/* PHASE 2: PREDICTIVE LONGITUDINAL ML (ROADMAP) */}
+                <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5 space-y-4">
+                  <div className="flex justify-between items-start pb-3 border-b border-gray-100">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2 py-0.5 rounded border border-purple-200">
+                        Phase 2: Data Accumulation Stage
+                      </span>
+                      <h3 className="text-base font-bold text-primary-navy mt-1">
+                        Predictive Longitudinal ML (Roadmap)
+                      </h3>
+                      <p className="text-xs text-text-muted">Statistical Modeling on 24-Month Mature Outcome Records</p>
+                    </div>
+                    <span className="text-xs font-mono font-bold bg-purple-50 px-2.5 py-1 rounded text-purple-800 border border-purple-200">
+                      Cohort Target: 100k+
+                    </span>
                   </div>
-                  <p className="text-sm font-semibold text-text-dark leading-relaxed">
-                    &ldquo;Reallocate ₹1.8 Cr funding from low-demand general trades to Cloud, Data Analytics, and Solar
-                    Technician hubs in Northern Bihar districts.&rdquo;
+
+                  <div className="space-y-3 text-xs">
+                    <div className="p-3 bg-purple-50/40 rounded-xl border border-purple-100 space-y-1">
+                      <div className="flex justify-between font-bold text-purple-900">
+                        <span>Kaplan-Meier Retention Survival Model</span>
+                        <span className="text-purple-700 font-mono">In Calibration</span>
+                      </div>
+                      <p className="text-text-muted text-[11px]">
+                        Estimating 6-month and 12-month drop-off hazard rates across demographic cohorts to trigger proactive retention interventions.
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-purple-50/40 rounded-xl border border-purple-100 space-y-1">
+                      <div className="flex justify-between font-bold text-purple-900">
+                        <span>Trade Obsolescence &amp; Velocity Forecaster</span>
+                        <span className="text-purple-700 font-mono">Pilot Phase</span>
+                      </div>
+                      <p className="text-text-muted text-[11px]">
+                        Correlating active job market hiring indices with regional placement speeds to forecast declining syllabus viability 6 months ahead.
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-purple-50/40 rounded-xl border border-purple-100 space-y-1">
+                      <div className="flex justify-between font-bold text-purple-900">
+                        <span>Personalized Bridge Course Matching</span>
+                        <span className="text-purple-700 font-mono">Active Pilot</span>
+                      </div>
+                      <p className="text-text-muted text-[11px]">
+                        Recommending specific 15-day modular additions (e.g. Cloud Foundations) that maximize post-training wage growth elasticity.
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-purple-50/40 rounded-xl border border-purple-100 space-y-1">
+                      <div className="flex justify-between font-bold text-purple-900">
+                        <span>Wage Trajectory Simulation</span>
+                        <span className="text-purple-700 font-mono">Research</span>
+                      </div>
+                      <p className="text-text-muted text-[11px]">
+                        Benchmarking individual earnings growth against regional CPI to evaluate genuine real-wage welfare improvement over 24 months.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Actionable Policy Advisories (PRD Aligned) */}
+              <div className="space-y-4">
+                <h3 className="font-bold text-sm text-primary-navy uppercase tracking-wider">
+                  Active AI Policy Advisories for Review
+                </h3>
+
+                <div className="p-5 bg-gradient-to-br from-blue-50/80 to-white rounded-2xl border border-blue-200 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-primary-navy font-bold text-sm">
+                      <Sparkles size={16} className="text-saffron" />
+                      <span>Advisory #1: Curriculum Modernization Discovery</span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded bg-blue-100 text-primary-blue text-[10px] font-bold">
+                      Confidence: 94%
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm font-semibold text-text-dark leading-relaxed">
+                    &ldquo;Students completing Full Stack courses with Cloud Modules command a 23% higher employment rate
+                    and 38% higher starting wage (₹28,000 vs ₹20,200) than pure web cohorts.&rdquo;
                   </p>
-                  <div className="pt-2 border-t border-orange-100 text-xs text-text-muted">
-                    <span className="font-bold text-saffron block mb-1">Projected Outcome:</span>
-                    Estimated +840 incremental placements within 12 months with higher average retention.
+                  <div className="pt-2 border-t border-blue-100 text-xs text-text-muted flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <span className="font-bold text-primary-navy">Recommended Action:</span> Consider mandating 40 hours of practical Docker &amp; Cloud training across all Tier-2 ITI curriculum batches starting Q3.
+                    </div>
+                    <button
+                      onClick={() => alert('Advisory noted. Forwarded to State Curriculum Review Committee.')}
+                      className="bg-primary-navy hover:bg-navy-dark text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap self-start sm:self-auto"
+                    >
+                      Forward to Committee
+                    </button>
+                  </div>
+                </div>
+
+                <div className="p-5 bg-gradient-to-br from-orange-50/80 to-white rounded-2xl border border-orange-200 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-saffron font-bold text-sm">
+                      <Sparkles size={16} className="text-saffron" />
+                      <span>Advisory #2: Resource Reallocation Recommendation</span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded bg-orange-100 text-saffron text-[10px] font-bold">
+                      Confidence: 91%
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm font-semibold text-text-dark leading-relaxed">
+                    &ldquo;Reallocating ₹1.8 Cr grant funding from saturated general desktop trades to Cloud, Data Analytics, and Solar
+                    Technician hubs in Northern Bihar will yield estimated +840 incremental placements within 12 months.&rdquo;
+                  </p>
+                  <div className="pt-2 border-t border-orange-100 text-xs text-text-muted flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <span className="font-bold text-saffron">Recommended Action:</span> Review capital allocation split for Q3-Q4 PMKVY 4.0 district allocations.
+                    </div>
+                    <button
+                      onClick={() => alert('Advisory noted. Added to Annual Planning Agenda.')}
+                      className="bg-saffron hover:bg-orange-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors whitespace-nowrap self-start sm:self-auto"
+                    >
+                      Add to Planning Agenda
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1607,6 +2214,446 @@ export default function GovernmentOfficerPortalPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 4: OUTCOME EVIDENCE TRAIL DOSSIER (Pillar 5) */}
+      {/* ======================================================== */}
+      {selectedEvidenceStudent && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl max-w-2xl w-full p-6 space-y-5 shadow-2xl border border-gray-200 max-h-[90vh] overflow-y-auto text-xs"
+          >
+            {/* Header */}
+            <div className="flex justify-between items-start pb-3 border-b border-gray-100">
+              <div>
+                <div className="inline-flex items-center gap-1.5 text-[10px] font-bold text-saffron uppercase tracking-wider mb-1 font-mono">
+                  <ShieldCheck size={13} /> Outcome Evidence Trail • {selectedEvidenceStudent.id}
+                </div>
+                <h3 className="text-xl font-bold text-primary-navy">{selectedEvidenceStudent.name}</h3>
+                <p className="text-text-muted">
+                  {selectedEvidenceStudent.district} • {selectedEvidenceStudent.program} • {selectedEvidenceStudent.provider}
+                </p>
+              </div>
+              <button
+                onClick={() => setSelectedEvidenceStudent(null)}
+                className="text-text-muted hover:text-text-dark font-bold text-lg p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Holy Trinity Triad Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {/* Evidence Status */}
+              <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+                <span className="text-[10px] uppercase font-bold text-text-muted block">Evidence Classification</span>
+                <span
+                  className={`inline-block px-2.5 py-1 rounded-full text-xs font-bold border mt-1 ${
+                    selectedEvidenceStudent.evidenceStatus === 'Verified Outcome'
+                      ? 'bg-green-50 text-success-green border-green-200'
+                      : selectedEvidenceStudent.evidenceStatus === 'Needs Review'
+                      ? 'bg-amber-50 text-amber-800 border-amber-200'
+                      : selectedEvidenceStudent.evidenceStatus === 'Conflicted'
+                      ? 'bg-red-50 text-red-700 border-red-200'
+                      : selectedEvidenceStudent.evidenceStatus === 'Follow-up Pending'
+                      ? 'bg-blue-50 text-primary-blue border-blue-200'
+                      : 'bg-gray-100 text-gray-700 border-gray-300'
+                  }`}
+                >
+                  {selectedEvidenceStudent.evidenceStatus}
+                </span>
+              </div>
+
+              {/* Confidence Score */}
+              <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-200">
+                <span className="text-[10px] uppercase font-bold text-text-muted block">Confidence Score</span>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-2xl font-bold text-primary-navy">
+                    {selectedEvidenceStudent.confidenceScore}%
+                  </span>
+                  <span className="text-[10px] text-text-muted">Triangulated</span>
+                </div>
+                <div className="w-full bg-blue-200 h-1.5 rounded-full mt-1.5 overflow-hidden">
+                  <div
+                    className="bg-primary-blue h-full rounded-full"
+                    style={{ width: `${selectedEvidenceStudent.confidenceScore}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Sustainable Outcome Index */}
+              <div className="p-3 bg-emerald-50/50 rounded-xl border border-emerald-200">
+                <span className="text-[10px] uppercase font-bold text-text-muted block">Sustainable Index (SOI)</span>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <span className="text-2xl font-bold text-success-green">
+                    {selectedEvidenceStudent.sustainableIndex}/100
+                  </span>
+                  <span className="text-[10px] text-emerald-700 font-semibold">
+                    {selectedEvidenceStudent.jobRelevance} Fit
+                  </span>
+                </div>
+                <p className="text-[10px] text-text-muted mt-1">
+                  Salary: {selectedEvidenceStudent.salary > 0 ? `₹${selectedEvidenceStudent.salary.toLocaleString('en-IN')}/mo` : 'Seeking'}
+                </p>
+              </div>
+            </div>
+
+            {/* Evidence Triangulation Audit Breakdown (Pillar 5) */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="font-bold text-primary-navy text-xs uppercase tracking-wider flex items-center gap-1.5">
+                  <Layers size={14} className="text-saffron" /> Triangulated Evidence Breakdown
+                </h4>
+                <span className="text-[10px] text-text-muted">
+                  Configured Threshold: &ge; {evidencePolicy.verificationThreshold}% for Verification
+                </span>
+              </div>
+
+              <div className="bg-gray-50 rounded-xl border border-gray-200 divide-y divide-gray-200 overflow-hidden">
+                {selectedEvidenceStudent.evidenceTrail && selectedEvidenceStudent.evidenceTrail.length > 0 ? (
+                  selectedEvidenceStudent.evidenceTrail.map((ev, i) => (
+                    <div key={i} className="p-3 flex items-center justify-between gap-3 text-xs bg-white">
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-primary-navy">{ev.type}</span>
+                          <span className="text-[10px] font-mono px-1.5 py-0.2 bg-blue-50 text-primary-blue rounded border border-blue-200 font-semibold">
+                            Weight: {ev.weight}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-text-muted">Source: {ev.source}</p>
+                      </div>
+                      <div>
+                        {ev.status === 'verified' && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-success-green bg-green-50 px-2 py-0.5 rounded border border-green-200">
+                            <CheckCircle2 size={12} /> Verified
+                          </span>
+                        )}
+                        {ev.status === 'pending' && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                            <Clock size={12} /> Pending Upload
+                          </span>
+                        )}
+                        {ev.status === 'conflict' && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                            <AlertCircle size={12} /> Conflicted
+                          </span>
+                        )}
+                        {ev.status === 'review' && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                            <Eye size={12} /> Needs Review
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-4 text-center text-text-muted">No evidence items registered yet.</div>
+                )}
+              </div>
+            </div>
+
+            {/* Legal / DPDP Act & Blockchain Reference */}
+            <div className="p-3 bg-gray-50 rounded-xl border border-gray-200 space-y-1.5 text-[11px]">
+              <div className="flex justify-between text-text-muted">
+                <span>DPDP Act 2023 Consent:</span>
+                <span className="font-semibold text-text-dark">Authenticated via Aadhaar OTP (Valid until 2027)</span>
+              </div>
+              <div className="flex justify-between text-text-muted">
+                <span>Audit Telemetry Hash:</span>
+                <span className="font-mono text-primary-navy">SHA-256: 7d4a...8f9e (Immutable)</span>
+              </div>
+              <div className="flex justify-between text-text-muted">
+                <span>Last Longitudinal Checkpoint:</span>
+                <span className="font-semibold text-text-dark">{selectedEvidenceStudent.followUpStatus}</span>
+              </div>
+            </div>
+
+            {/* Officer Actions */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-2 pt-2 border-t border-gray-100">
+              <button
+                onClick={() => {
+                  setReportToast(`Audit flag registered for ${selectedEvidenceStudent.name}. District review dispatched.`);
+                  setTimeout(() => setReportToast(''), 3500);
+                  setSelectedEvidenceStudent(null);
+                }}
+                className="w-full sm:w-auto px-4 py-2 border border-red-300 text-red-700 hover:bg-red-50 rounded-lg font-bold text-xs transition-colors"
+              >
+                Flag for Center Inspection
+              </button>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  onClick={() => setSelectedEvidenceStudent(null)}
+                  className="w-full sm:w-auto px-4 py-2 text-text-muted hover:text-text-dark font-semibold text-xs transition-colors"
+                >
+                  Close Dossier
+                </button>
+                <button
+                  onClick={() => {
+                    setReportToast(`Officer approval confirmed for ${selectedEvidenceStudent.name}! Recorded in National Registry.`);
+                    setTimeout(() => setReportToast(''), 3500);
+                    setSelectedEvidenceStudent(null);
+                  }}
+                  className="w-full sm:w-auto bg-success-green hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-bold text-xs transition-colors shadow-xs"
+                >
+                  Approve Verified Outcome
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 5: CONFIGURABLE EVIDENCE POLICY (Pillar 4) */}
+      {/* ======================================================== */}
+      {showConfigPolicyModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl max-w-xl w-full p-6 space-y-5 shadow-2xl border border-gray-200 max-h-[90vh] overflow-y-auto text-xs"
+          >
+            {/* Header */}
+            <div className="flex justify-between items-start pb-3 border-b border-gray-100">
+              <div>
+                <div className="inline-flex items-center gap-1.5 text-[10px] font-bold text-saffron uppercase tracking-wider mb-1 font-mono">
+                  <Settings size={13} /> Pillar 4: Configurable Evidence Policy
+                </div>
+                <h3 className="text-xl font-bold text-primary-navy">Calibrate National Evidence Engine</h3>
+                <p className="text-text-muted">
+                  Configure evidence weights, data-source significance, and classification thresholds for state schemes.
+                </p>
+              </div>
+              <button
+                onClick={() => setShowConfigPolicyModal(false)}
+                className="text-text-muted hover:text-text-dark font-bold text-lg p-1"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Presets */}
+            <div className="space-y-2">
+              <span className="text-[10px] uppercase font-bold text-text-muted block">Policy Presets</span>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEvidencePolicy({
+                      learnerConfirmationWeight: 30,
+                      supportingDocWeight: 35,
+                      institutionalRosterWeight: 17,
+                      providentFundCrossCheckWeight: 18,
+                      verificationThreshold: 75,
+                      reviewThreshold: 50,
+                    })
+                  }
+                  className="p-2.5 rounded-lg border border-primary-navy/30 bg-blue-50/50 hover:bg-blue-100/70 text-left transition-colors"
+                >
+                  <span className="font-bold text-primary-navy block text-xs">Standard MSDE</span>
+                  <span className="text-[10px] text-text-muted block">30 / 35 / 17 / 18</span>
+                  <span className="text-[10px] text-primary-blue font-semibold">Threshold: 75%</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEvidencePolicy({
+                      learnerConfirmationWeight: 20,
+                      supportingDocWeight: 50,
+                      institutionalRosterWeight: 15,
+                      providentFundCrossCheckWeight: 15,
+                      verificationThreshold: 80,
+                      reviewThreshold: 55,
+                    })
+                  }
+                  className="p-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-left transition-colors"
+                >
+                  <span className="font-bold text-text-dark block text-xs">High Assurance</span>
+                  <span className="text-[10px] text-text-muted block">20 / 50 / 15 / 15</span>
+                  <span className="text-[10px] text-saffron font-semibold">Threshold: 80%</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setEvidencePolicy({
+                      learnerConfirmationWeight: 45,
+                      supportingDocWeight: 25,
+                      institutionalRosterWeight: 15,
+                      providentFundCrossCheckWeight: 15,
+                      verificationThreshold: 65,
+                      reviewThreshold: 45,
+                    })
+                  }
+                  className="p-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-left transition-colors"
+                >
+                  <span className="font-bold text-text-dark block text-xs">Rural Low-Friction</span>
+                  <span className="text-[10px] text-text-muted block">45 / 25 / 15 / 15</span>
+                  <span className="text-[10px] text-success-green font-semibold">Threshold: 65%</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Sliders / Weight Controls */}
+            <div className="space-y-4 pt-2 border-t border-gray-100">
+              <div className="space-y-2">
+                <div className="flex justify-between font-semibold">
+                  <span>1. Learner Micro-Survey Attestation Weight</span>
+                  <span className="text-saffron font-bold font-mono">{evidencePolicy.learnerConfirmationWeight}%</span>
+                </div>
+                <input
+                  type="range"
+                  min={10}
+                  max={60}
+                  value={evidencePolicy.learnerConfirmationWeight}
+                  onChange={(e) =>
+                    setEvidencePolicy((prev) => ({ ...prev, learnerConfirmationWeight: Number(e.target.value) }))
+                  }
+                  className="w-full accent-saffron"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between font-semibold">
+                  <span>2. Documentary Proof (Offer Letter / Salary Slip) Weight</span>
+                  <span className="text-primary-blue font-bold font-mono">{evidencePolicy.supportingDocWeight}%</span>
+                </div>
+                <input
+                  type="range"
+                  min={10}
+                  max={60}
+                  value={evidencePolicy.supportingDocWeight}
+                  onChange={(e) =>
+                    setEvidencePolicy((prev) => ({ ...prev, supportingDocWeight: Number(e.target.value) }))
+                  }
+                  className="w-full accent-primary-blue"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between font-semibold">
+                  <span>3. Training Center / Institutional Roster Match</span>
+                  <span className="text-purple-700 font-bold font-mono">{evidencePolicy.institutionalRosterWeight}%</span>
+                </div>
+                <input
+                  type="range"
+                  min={5}
+                  max={30}
+                  value={evidencePolicy.institutionalRosterWeight}
+                  onChange={(e) =>
+                    setEvidencePolicy((prev) => ({ ...prev, institutionalRosterWeight: Number(e.target.value) }))
+                  }
+                  className="w-full accent-purple-700"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <div className="flex justify-between font-semibold">
+                  <span>4. Consistency Audit / Secondary Database Check</span>
+                  <span className="text-success-green font-bold font-mono">{evidencePolicy.providentFundCrossCheckWeight}%</span>
+                </div>
+                <input
+                  type="range"
+                  min={5}
+                  max={30}
+                  value={evidencePolicy.providentFundCrossCheckWeight}
+                  onChange={(e) =>
+                    setEvidencePolicy((prev) => ({ ...prev, providentFundCrossCheckWeight: Number(e.target.value) }))
+                  }
+                  className="w-full accent-success-green"
+                />
+              </div>
+
+              {/* Total Weight Verification */}
+              {(() => {
+                const total =
+                  evidencePolicy.learnerConfirmationWeight +
+                  evidencePolicy.supportingDocWeight +
+                  evidencePolicy.institutionalRosterWeight +
+                  evidencePolicy.providentFundCrossCheckWeight;
+                return (
+                  <div
+                    className={`p-2.5 rounded-lg text-xs font-semibold flex items-center justify-between ${
+                      total === 100
+                        ? 'bg-green-50 text-success-green border border-green-200'
+                        : 'bg-amber-50 text-amber-800 border border-amber-200'
+                    }`}
+                  >
+                    <span>Sum of Triangulation Weights:</span>
+                    <span className="font-mono font-bold">
+                      {total}% {total === 100 ? '✓ (Normalized)' : '(Must sum to 100%)'}
+                    </span>
+                  </div>
+                );
+              })()}
+
+              {/* Threshold Calibration */}
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+                  <span className="text-[10px] uppercase font-bold text-text-muted block">Verified Threshold</span>
+                  <div className="flex items-center gap-2 mt-1">
+                    <input
+                      type="number"
+                      min={60}
+                      max={95}
+                      value={evidencePolicy.verificationThreshold}
+                      onChange={(e) =>
+                        setEvidencePolicy((prev) => ({ ...prev, verificationThreshold: Number(e.target.value) }))
+                      }
+                      className="w-16 p-1 border rounded font-mono font-bold text-primary-navy"
+                    />
+                    <span className="text-[11px] text-text-muted">% or higher</span>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-gray-50 rounded-xl border border-gray-200">
+                  <span className="text-[10px] uppercase font-bold text-text-muted block">Needs Review Threshold</span>
+                  <div className="flex items-center gap-2 mt-1">
+                    <input
+                      type="number"
+                      min={40}
+                      max={74}
+                      value={evidencePolicy.reviewThreshold}
+                      onChange={(e) =>
+                        setEvidencePolicy((prev) => ({ ...prev, reviewThreshold: Number(e.target.value) }))
+                      }
+                      className="w-16 p-1 border rounded font-mono font-bold text-primary-navy"
+                    />
+                    <span className="text-[11px] text-text-muted">% to {evidencePolicy.verificationThreshold - 1}%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={() => setShowConfigPolicyModal(false)}
+                className="px-4 py-2 text-text-muted hover:text-text-dark font-semibold text-xs transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setReportToast(
+                    `National Evidence Policy calibrated! Verified threshold set to ${evidencePolicy.verificationThreshold}%. Live recalculation applied.`
+                  );
+                  setTimeout(() => setReportToast(''), 3500);
+                  setShowConfigPolicyModal(false);
+                }}
+                className="bg-saffron hover:bg-orange-600 text-white px-5 py-2 rounded-lg font-bold text-xs transition-colors shadow-xs"
+              >
+                Apply &amp; Propagate Policy
+              </button>
+            </div>
+          </motion.div>
         </div>
       )}
 

@@ -45,6 +45,10 @@ export default function Hero() {
             className="space-y-8"
           >
             <motion.div variants={itemVariants} className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-200 text-saffron text-xs sm:text-sm font-semibold shadow-xs">
+                <span className="w-2 h-2 rounded-full bg-saffron animate-pulse" />
+                <span>“The certificate is not the outcome. What happens after the certificate is.”</span>
+              </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
                 <span className="block text-primary-navy">
                   Track Skills. Measure Outcomes.

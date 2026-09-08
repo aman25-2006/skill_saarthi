@@ -103,7 +103,7 @@ export default function Problem() {
             variants={containerVariants}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
           >
-            {problems.map((problem, idx) => {
+            {problems.map((problem) => {
               const Icon = problem.icon;
               return (
                 <motion.div

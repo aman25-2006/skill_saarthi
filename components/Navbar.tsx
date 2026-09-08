@@ -143,7 +143,7 @@ export default function Navbar() {
                 transition={{ duration: 0.2 }}
                 className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-gray-200 overflow-hidden"
               >
-                {loginOptions.map((option, index) => {
+                {loginOptions.map((option) => {
                   const Icon = option.icon;
                   return (
                     <a

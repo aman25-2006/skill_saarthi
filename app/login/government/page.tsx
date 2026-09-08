@@ -19,7 +19,6 @@ import {
   BarChart3,
   TrendingUp,
   Brain,
-  Lock,
   Landmark,
   FileCheck,
 } from 'lucide-react';

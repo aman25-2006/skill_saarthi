@@ -14,15 +14,8 @@ import {
   X,
   AlertCircle,
   CheckCircle2,
-  Briefcase,
-  BookOpen,
-  Award,
   Sparkles,
   Shield,
-  HelpCircle,
-  Building,
-  User,
-  MapPin,
   Compass,
 } from 'lucide-react';
 

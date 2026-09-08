@@ -18,29 +18,16 @@ import {
   Brain,
   ShieldCheck,
   User,
-  MapPin,
-  Building,
-  Calendar,
-  DollarSign,
   ChevronRight,
-  ExternalLink,
   Download,
   Bell,
   Settings,
   Send,
-  ArrowRight,
   Check,
-  X,
-  FileText,
   Star,
-  RefreshCw,
-  HelpCircle,
-  Eye,
   Layers,
-  Compass,
   Cpu,
   BarChart3,
-  ThumbsUp,
 } from 'lucide-react';
 
 type TabType =
@@ -82,6 +69,7 @@ export default function StudentPortalPage() {
   const [showAddSkillModal, setShowAddSkillModal] = useState(false);
   const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showEvidenceTrailModal, setShowEvidenceTrailModal] = useState(false);
 
   // Student State with local storage hydration
   const [studentProfile, setStudentProfile] = useState({
@@ -278,23 +266,46 @@ export default function StudentPortalPage() {
     },
   ]);
 
-  // 6-Month Survey Form State
+  // Micro-Survey State (Pillar 3: Ultra Low-Friction 4-Step Checkpoint)
+  const [microSurveyStep, setMicroSurveyStep] = useState(1);
   const [surveyFormData, setSurveyFormData] = useState({
-    stillEmployed: 'Yes',
+    workingStatus: 'Yes', // 'Yes' | 'Self-employed' | 'Looking for work' | 'No' | 'Prefer not to say'
+    jobRole: 'Junior Software Engineer',
+    incomeBracket: '₹25,000 – ₹35,000',
     newSalary: '28000',
-    relevanceRating: 5,
-    satisfactionRating: 4,
-    feedbackNote: 'The PMKVY React & SQL modules were directly applicable to client projects at TechNova Solutions.',
+    trainingRelevance: 'Yes', // 'Yes' | 'Partly' | 'No'
+    hasEvidenceDoc: true,
+    evidenceDocType: 'Salary Slip / Offer Letter',
+    feedbackNote: 'The PMKVY React & SQL modules directly helped me get this job.',
   });
   const [surveySubmitted, setSurveySubmitted] = useState(false);
 
-  // Handle Survey Submission
-  const handleSurveySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Outcome Evidence Engine State (Pillar 1, 5, 6)
+  const [outcomeEvidence, setOutcomeEvidence] = useState({
+    status: 'Verified Outcome' as 'Verified Outcome' | 'Needs Review' | 'Unverified Outcome' | 'Follow-up Pending' | 'Conflicted',
+    confidenceScore: 84, // 0-100%
+    sustainableOutcomeIndex: 90, // Retention + Wage Progression + Job Relevance
+    jobRelevanceScore: 92,
+    evidenceTrail: [
+      { step: 'Learner Self-Attestation', detail: 'Confirmed employment via 3M & 6M WhatsApp Micro-Surveys', weight: '+30%', status: 'verified' },
+      { step: 'Documentary Verification', detail: 'Offer Letter & Recent Salary Slip authenticated', weight: '+35%', status: 'verified' },
+      { step: 'Institutional Roster Match', detail: 'Placement verified against Muzaffarpur CoE training cohort', weight: '+17%', status: 'verified' },
+      { step: 'Contradiction Audit', detail: 'Cross-checked with state registry; 0 anomalies detected', weight: '0%', status: 'clean' },
+    ],
+  });
+
+  // Handle Micro-Survey Submission
+  const handleSurveySubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setSurveySubmitted(true);
     setStudentProfile((prev) => ({
       ...prev,
       currentSalary: parseInt(surveyFormData.newSalary, 10) || prev.currentSalary,
+    }));
+    setOutcomeEvidence((prev) => ({
+      ...prev,
+      confidenceScore: surveyFormData.hasEvidenceDoc ? 88 : 74,
+      status: 'Verified Outcome',
     }));
     setFollowUpMilestones((prev) =>
       prev.map((m, idx) =>
@@ -306,7 +317,7 @@ export default function StudentPortalPage() {
               summary: `Confirmed retention at ${studentProfile.company}. Verified wage increment to ₹${parseInt(
                 surveyFormData.newSalary,
                 10
-              ).toLocaleString('en-IN')}/mo.`,
+              ).toLocaleString('en-IN')}/mo. Outcome Confidence: 88%.`,
             }
           : m
       )
@@ -314,7 +325,8 @@ export default function StudentPortalPage() {
     setTimeout(() => {
       setShowSurveyModal(false);
       setSurveySubmitted(false);
-    }, 1200);
+      setMicroSurveyStep(1);
+    }, 1500);
   };
 
   // AI Chat Assistant Messages
@@ -507,14 +519,14 @@ export default function StudentPortalPage() {
           <div className="max-w-7xl mx-auto px-4 flex gap-1 sm:gap-2 min-w-max">
             {[
               { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+              { id: 'career', label: 'Outcome Passport', icon: TrendingUp },
               { id: 'profile', label: 'My Profile', icon: User },
               { id: 'training', label: 'My Training', icon: BookOpen },
               { id: 'skills', label: 'My Skills', icon: Sparkles },
               { id: 'skill-gap', label: 'AI Skill Gap', icon: Brain },
               { id: 'learning', label: 'Recommended Learning', icon: Layers },
               { id: 'employment', label: 'Employment', icon: Briefcase },
-              { id: 'career', label: 'Career Progress', icon: TrendingUp },
-              { id: 'follow-up', label: 'Follow-Up', icon: Clock },
+              { id: 'follow-up', label: 'Milestones & Evidence', icon: Clock },
               { id: 'ai-assistant', label: 'AI Assistant', icon: Cpu },
             ].map((tab) => {
               const Icon = tab.icon;
@@ -555,63 +567,79 @@ export default function StudentPortalPage() {
               exit={{ opacity: 0, y: -10 }}
               className="space-y-6"
             >
-              {/* Top Welcome Header */}
+              {/* Top Welcome Header with Outcome Evidence Engine Badge */}
               <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <h1 className="text-2xl sm:text-3xl font-bold text-primary-navy">
                       Welcome back, {studentProfile.fullName}!
                     </h1>
                     <span className="bg-green-100 text-success-green border border-green-200 text-xs font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                      <CheckCircle2 size={12} /> Placed &amp; Active
+                      <CheckCircle2 size={12} /> 🟢 {outcomeEvidence.status}
                     </span>
+                    <button
+                      onClick={() => setShowEvidenceTrailModal(true)}
+                      className="text-[11px] font-bold text-primary-blue hover:text-deep-navy bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 hover:bg-blue-100 transition-colors"
+                    >
+                      Audit Evidence Trail ({outcomeEvidence.confidenceScore}%) →
+                    </button>
                   </div>
                   <p className="text-text-muted text-sm mt-1">
                     {studentProfile.jobRole} at{' '}
                     <span className="font-semibold text-text-dark">{studentProfile.company}</span>{' '}
-                    • Cohort 2024–25 (PMKVY 4.0)
+                    • Cohort 2024–25 (PMKVY 4.0) • DPDP Act 2023 Consent Active
                   </p>
                 </div>
 
                 {/* Quick Action Button to Survey */}
                 <button
-                  onClick={() => setShowSurveyModal(true)}
+                  onClick={() => {
+                    setMicroSurveyStep(1);
+                    setShowSurveyModal(true);
+                  }}
                   className="inline-flex items-center gap-2 bg-saffron text-white px-5 py-2.5 rounded-lg text-xs font-semibold hover:bg-orange-600 transition-all shadow-sm focus:outline-none"
                 >
                   <Clock size={14} />
-                  Complete 6-Month Follow-Up Survey
+                  Complete 6-Month Micro-Survey (30s)
                 </button>
               </div>
 
-              {/* 5 Longitudinal Outcome KPI Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              {/* 6 Holy Trinity Outcome & Quality KPI Cards (Pillar 6 & 7) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+                {/* 1. Outcome Status */}
                 <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs">
                   <div className="flex items-center justify-between text-text-muted mb-2">
-                    <span className="text-xs font-medium uppercase tracking-wider">Training Status</span>
-                    <BookOpen size={16} className="text-primary-blue" />
-                  </div>
-                  <p className="text-base font-bold text-primary-navy">Certified</p>
-                  <p className="text-[11px] text-success-green font-semibold mt-1">✓ 100% Completed (480h)</p>
-                </div>
-
-                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs">
-                  <div className="flex items-center justify-between text-text-muted mb-2">
-                    <span className="text-xs font-medium uppercase tracking-wider">Verified Skills</span>
-                    <Award size={16} className="text-primary-blue" />
-                  </div>
-                  <p className="text-base font-bold text-primary-navy">{skillsList.length} Competencies</p>
-                  <p className="text-[11px] text-text-muted mt-1">NCVET Level 5 Aligned</p>
-                </div>
-
-                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs">
-                  <div className="flex items-center justify-between text-text-muted mb-2">
-                    <span className="text-xs font-medium uppercase tracking-wider">Placement</span>
+                    <span className="text-xs font-medium uppercase tracking-wider">Outcome Status</span>
                     <Briefcase size={16} className="text-success-green" />
                   </div>
                   <p className="text-base font-bold text-text-dark">Employed</p>
-                  <p className="text-[11px] text-text-muted truncate mt-1">TechNova Solutions</p>
+                  <p className="text-[11px] text-success-green font-semibold mt-1">🟢 Verified in Role</p>
                 </div>
 
+                {/* 2. Outcome Confidence Score (Pillar 1 & 4) */}
+                <div 
+                  onClick={() => setShowEvidenceTrailModal(true)}
+                  className="bg-white p-4 rounded-xl border border-blue-200 shadow-xs bg-gradient-to-br from-blue-50/40 to-white cursor-pointer hover:border-primary-blue transition-all"
+                >
+                  <div className="flex items-center justify-between text-text-muted mb-2">
+                    <span className="text-xs font-bold text-primary-blue uppercase tracking-wider">Evidence Confidence</span>
+                    <ShieldCheck size={16} className="text-primary-blue" />
+                  </div>
+                  <p className="text-xl font-bold text-primary-navy">{outcomeEvidence.confidenceScore}%</p>
+                  <p className="text-[11px] text-primary-blue font-semibold mt-1 hover:underline">Click to View Trail →</p>
+                </div>
+
+                {/* 3. Sustainable Outcome Index (Pillar 7) */}
+                <div className="bg-white p-4 rounded-xl border border-purple-200 shadow-xs bg-gradient-to-br from-purple-50/40 to-white">
+                  <div className="flex items-center justify-between text-text-muted mb-2">
+                    <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">Sustainable Index</span>
+                    <Award size={16} className="text-purple-600" />
+                  </div>
+                  <p className="text-xl font-bold text-purple-800">{outcomeEvidence.sustainableOutcomeIndex} / 100</p>
+                  <p className="text-[11px] text-purple-600 font-semibold mt-1">Retention + Relevance</p>
+                </div>
+
+                {/* 4. Current Wage & Progression */}
                 <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs">
                   <div className="flex items-center justify-between text-text-muted mb-2">
                     <span className="text-xs font-medium uppercase tracking-wider">Current Wage</span>
@@ -620,37 +648,51 @@ export default function StudentPortalPage() {
                   <p className="text-base font-bold text-primary-navy">
                     ₹{studentProfile.currentSalary.toLocaleString('en-IN')} <span className="text-xs font-normal">/mo</span>
                   </p>
-                  <p className="text-[11px] text-success-green font-semibold mt-1">+27% wage progression</p>
+                  <p className="text-[11px] text-success-green font-semibold mt-1">+27% since placement</p>
                 </div>
 
+                {/* 5. Job-Training Relevance (Pillar 7) */}
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs">
+                  <div className="flex items-center justify-between text-text-muted mb-2">
+                    <span className="text-xs font-medium uppercase tracking-wider">Job Relevance</span>
+                    <BookOpen size={16} className="text-primary-blue" />
+                  </div>
+                  <p className="text-base font-bold text-primary-navy">{outcomeEvidence.jobRelevanceScore}%</p>
+                  <p className="text-[11px] text-success-green font-semibold mt-1">High Syllabus Match</p>
+                </div>
+
+                {/* 6. Next Follow-Up Checkpoint */}
                 <div className="bg-white p-4 rounded-xl border border-orange-200 shadow-xs bg-gradient-to-br from-orange-50/50 to-white">
                   <div className="flex items-center justify-between text-text-muted mb-2">
-                    <span className="text-xs font-bold text-saffron uppercase tracking-wider">Next Follow-Up</span>
+                    <span className="text-xs font-bold text-saffron uppercase tracking-wider">Checkpoint</span>
                     <Clock size={16} className="text-saffron" />
                   </div>
                   <p className="text-base font-bold text-saffron">6-Month Due</p>
-                  <p className="text-[11px] text-amber-700 font-semibold mt-1">Action Pending</p>
+                  <p className="text-[11px] text-amber-700 font-semibold mt-1">Micro-Survey Ready</p>
                 </div>
               </div>
 
-              {/* Action Banner for Follow-Up */}
-              <div className="bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-2xl p-5 sm:p-6 shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
+              {/* Action Banner for Low-Friction Micro-Survey (Pillar 3) */}
+              <div className="bg-gradient-to-r from-orange-500 via-saffron to-amber-500 text-white rounded-2xl p-5 sm:p-6 shadow-md flex flex-col md:flex-row items-center justify-between gap-4">
                 <div className="space-y-1 text-center md:text-left">
                   <div className="inline-flex items-center gap-1.5 bg-white/20 text-white text-xs font-bold px-2.5 py-0.5 rounded-full mb-1">
-                    <Clock size={12} /> Longitudinal Outcome Telemetry
+                    <Clock size={12} /> Consent-Based Outcome Intelligence • 4-Tap Micro-Check
                   </div>
                   <h3 className="text-lg sm:text-xl font-bold">
-                    6-Month Post-Placement Follow-Up is Active
+                    6-Month Outcome Passport Checkpoint is Active
                   </h3>
                   <p className="text-xs sm:text-sm text-orange-100 max-w-2xl leading-relaxed">
-                    Help the Ministry of Skill Development measure real workplace retention, wage growth, and course applicability. Takes only 1 minute!
+                    No long forms. Answer 4 quick taps in 30 seconds to update your verified wage progression, job retention, and unlock free NCVET upskilling credits.
                   </p>
                 </div>
                 <button
-                  onClick={() => setShowSurveyModal(true)}
+                  onClick={() => {
+                    setMicroSurveyStep(1);
+                    setShowSurveyModal(true);
+                  }}
                   className="bg-white text-saffron hover:bg-orange-50 px-6 py-3 rounded-lg font-bold text-xs sm:text-sm shadow-md transition-all whitespace-nowrap"
                 >
-                  Submit Survey Now →
+                  Start 30s Micro-Survey →
                 </button>
               </div>
 
@@ -1408,12 +1450,36 @@ export default function StudentPortalPage() {
             >
               <div>
                 <div className="inline-flex items-center gap-1 text-xs font-bold text-saffron bg-orange-50 px-2.5 py-0.5 rounded-full mb-1">
-                  <TrendingUp size={13} /> Longitudinal Telemetry Engine
+                  <TrendingUp size={13} /> Pillar 2: Single Longitudinal Backbone
                 </div>
-                <h2 className="text-2xl font-bold text-primary-navy">Career &amp; Wage Progression</h2>
+                <h2 className="text-2xl font-bold text-primary-navy">National Outcome Passport</h2>
                 <p className="text-xs sm:text-sm text-text-muted mt-0.5">
-                  Visual evidence of economic mobility — from initial skilling to placement and wage increments.
+                  The verified longitudinal record connecting your training, certification, placement, and post-skilling livelihood growth.
                 </p>
+              </div>
+
+              {/* Longitudinal Backbone Journey Map (Pillar 2) */}
+              <div className="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-3">
+                <span className="text-xs font-bold text-primary-navy uppercase tracking-wider block">
+                  Learner Outcome Continuity Chain
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 text-center text-xs">
+                  {[
+                    { title: '1. Training', sub: '480h Web Dev', status: 'done', color: 'bg-blue-100 text-primary-navy' },
+                    { title: '2. Assessment', sub: 'Grade A Passed', status: 'done', color: 'bg-blue-100 text-primary-navy' },
+                    { title: '3. Certification', sub: 'NCVET Level 5', status: 'done', color: 'bg-blue-100 text-primary-navy' },
+                    { title: '4. Placement', sub: 'TechNova Sol.', status: 'done', color: 'bg-blue-100 text-primary-navy' },
+                    { title: '5. Outcome Passport', sub: 'Live Telemetry', status: 'active', color: 'bg-saffron text-white font-bold shadow-xs' },
+                    { title: '6. 3M Checkpoint', sub: 'Verified (₹22k)', status: 'done', color: 'bg-green-100 text-success-green' },
+                    { title: '7. 6M Checkpoint', sub: 'Active (₹28k)', status: 'action', color: 'bg-orange-100 text-saffron font-bold border border-orange-300 animate-pulse' },
+                    { title: '8. 12M / 24M', sub: 'Upcoming', status: 'pending', color: 'bg-gray-100 text-text-muted' },
+                  ].map((step, idx) => (
+                    <div key={idx} className={`p-2.5 rounded-xl flex flex-col justify-center items-center ${step.color}`}>
+                      <span className="font-bold text-[11px]">{step.title}</span>
+                      <span className="text-[9px] opacity-90 mt-0.5">{step.sub}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {/* Wage Progression Visualizer */}
@@ -1708,21 +1774,23 @@ export default function StudentPortalPage() {
       </main>
 
       {/* ======================================================== */}
-      {/* MODAL 1: 6-MONTH FOLLOW-UP SURVEY MODAL */}
+      {/* MODAL 1: 4-STEP ULTRA LOW-FRICTION MICRO-SURVEY (PILLAR 3) */}
       {/* ======================================================== */}
       {showSurveyModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl border border-gray-200 max-h-[90vh] overflow-y-auto"
           >
-            <div className="flex justify-between items-start pb-3 border-b border-gray-100">
+            <div className="flex justify-between items-start pb-2 border-b border-gray-100">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-saffron bg-orange-50 px-2 py-0.5 rounded-full border border-orange-200">
-                  Government Longitudinal Follow-Up
+                  Step {microSurveyStep} of 4 • 30-Second Micro-Check
                 </span>
-                <h3 className="text-lg font-bold text-primary-navy mt-1">6-Month Post-Placement Survey</h3>
+                <h3 className="text-lg font-bold text-primary-navy mt-1">
+                  6-Month Outcome Passport Checkpoint
+                </h3>
               </div>
               <button
                 onClick={() => setShowSurveyModal(false)}
@@ -1732,101 +1800,327 @@ export default function StudentPortalPage() {
               </button>
             </div>
 
+            {/* Progress Bar */}
+            <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden">
+              <div
+                className="bg-saffron h-full transition-all duration-300"
+                style={{ width: `${(microSurveyStep / 4) * 100}%` }}
+              />
+            </div>
+
             {surveySubmitted ? (
               <div className="text-center py-8 space-y-3">
-                <div className="w-16 h-16 bg-green-100 text-success-green rounded-full flex items-center justify-center mx-auto text-2xl">
+                <div className="w-16 h-16 bg-green-100 text-success-green rounded-full flex items-center justify-center mx-auto text-2xl animate-bounce">
                   ✓
                 </div>
-                <h4 className="text-lg font-bold text-primary-navy">Survey Submitted Successfully!</h4>
-                <p className="text-xs text-text-muted">
-                  Your updated wage and retention telemetry have been securely synced with the Ministry of Skill Development.
+                <h4 className="text-lg font-bold text-primary-navy">Outcome Passport Updated!</h4>
+                <p className="text-xs text-text-muted max-w-sm mx-auto">
+                  Outcome Confidence updated to <span className="font-bold text-success-green">88% (Verified Outcome 🟢)</span>. Your longitudinal record has been synced with the Ministry of Skill Development.
                 </p>
+                <div className="p-3 bg-green-50 rounded-xl border border-green-200 text-xs text-success-green font-semibold">
+                  +100 NCVET Free Upskilling Credits Unlocked!
+                </div>
               </div>
             ) : (
-              <form onSubmit={handleSurveySubmit} className="space-y-4 text-xs">
-                <div>
-                  <label className="block font-bold text-text-dark mb-1">
-                    1. Are you still employed with {studentProfile.company}?
-                  </label>
-                  <select
-                    value={surveyFormData.stillEmployed}
-                    onChange={(e) => setSurveyFormData({ ...surveyFormData, stillEmployed: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white"
-                  >
-                    <option value="Yes">Yes, continuously employed</option>
-                    <option value="Switched">No, I switched to a better role/company</option>
-                    <option value="Unemployed">No, currently seeking new employment</option>
-                  </select>
-                </div>
+              <div className="space-y-4 text-xs">
+                {/* STEP 1: WORKING STATUS */}
+                {microSurveyStep === 1 && (
+                  <div className="space-y-3">
+                    <label className="block font-bold text-text-dark text-sm">
+                      1. Are you currently working?
+                    </label>
+                    <p className="text-text-muted text-[11px]">
+                      Select the option that best reflects your current livelihood status.
+                    </p>
+                    <div className="grid grid-cols-1 gap-2 pt-1">
+                      {[
+                        { id: 'Yes', title: 'Yes, in regular job', desc: 'Employed full-time or contract at TechNova Solutions' },
+                        { id: 'Self-employed', title: 'Self-employed / Freelancing', desc: 'Running own venture or client projects' },
+                        { id: 'Looking for work', title: 'Looking for work', desc: 'Actively interviewing for new roles' },
+                        { id: 'No', title: 'Not working / Higher education', desc: 'Pursuing further degree or family commitments' },
+                        { id: 'Prefer not to say', title: 'Prefer not to say', desc: 'Keep status confidential' },
+                      ].map((opt) => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => {
+                            setSurveyFormData({ ...surveyFormData, workingStatus: opt.id });
+                            setMicroSurveyStep(opt.id === 'Yes' || opt.id === 'Self-employed' ? 2 : 4);
+                          }}
+                          className={`p-3 rounded-xl border text-left flex justify-between items-center transition-all ${
+                            surveyFormData.workingStatus === opt.id
+                              ? 'border-primary-blue bg-blue-50/50 shadow-xs'
+                              : 'border-gray-200 hover:border-gray-300 bg-white'
+                          }`}
+                        >
+                          <div>
+                            <p className="font-bold text-text-dark">{opt.title}</p>
+                            <p className="text-text-muted text-[11px] mt-0.5">{opt.desc}</p>
+                          </div>
+                          <ChevronRight size={14} className="text-text-muted" />
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-                <div>
-                  <label className="block font-bold text-text-dark mb-1">
-                    2. Current Monthly Wage / Salary (₹)
-                  </label>
-                  <input
-                    type="number"
-                    value={surveyFormData.newSalary}
-                    onChange={(e) => setSurveyFormData({ ...surveyFormData, newSalary: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-300"
-                    placeholder="e.g. 28000"
-                    required
-                  />
-                  <p className="text-[10px] text-text-muted mt-0.5">
-                    Initial placement was ₹22,000. Enter current increment amount.
-                  </p>
-                </div>
+                {/* STEP 2: JOB ROLE & WAGE RANGE */}
+                {microSurveyStep === 2 && (
+                  <div className="space-y-3">
+                    <label className="block font-bold text-text-dark text-sm">
+                      2. Role &amp; Monthly Income Range
+                    </label>
+                    <div>
+                      <span className="block font-semibold text-text-dark mb-1">Current Job Role</span>
+                      <input
+                        type="text"
+                        value={surveyFormData.jobRole}
+                        onChange={(e) => setSurveyFormData({ ...surveyFormData, jobRole: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg border border-gray-300"
+                      />
+                    </div>
 
-                <div>
-                  <label className="block font-bold text-text-dark mb-1">
-                    3. How relevant was your PMKVY skilling course to your job responsibilities?
-                  </label>
-                  <div className="flex gap-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
+                    <div>
+                      <span className="block font-semibold text-text-dark mb-1">Monthly Income Bracket</span>
+                      <div className="grid grid-cols-2 gap-2">
+                        {['Under ₹15,000', '₹15,000 – ₹25,000', '₹25,000 – ₹35,000', '₹35,000+'].map((bracket) => (
+                          <button
+                            key={bracket}
+                            type="button"
+                            onClick={() => setSurveyFormData({ ...surveyFormData, incomeBracket: bracket })}
+                            className={`p-2 rounded-lg border text-center font-semibold transition-all ${
+                              surveyFormData.incomeBracket === bracket
+                                ? 'bg-primary-navy text-white border-primary-navy'
+                                : 'bg-gray-50 border-gray-200 text-text-dark hover:bg-gray-100'
+                            }`}
+                          >
+                            {bracket}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <span className="block font-semibold text-text-dark mb-1">Exact Verified Monthly Wage (₹)</span>
+                      <input
+                        type="number"
+                        value={surveyFormData.newSalary}
+                        onChange={(e) => setSurveyFormData({ ...surveyFormData, newSalary: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg border border-gray-300 font-bold text-primary-navy"
+                      />
+                    </div>
+
+                    <div className="pt-2 flex justify-between">
                       <button
                         type="button"
-                        key={star}
-                        onClick={() => setSurveyFormData({ ...surveyFormData, relevanceRating: star })}
-                        className={`px-3 py-1.5 rounded-lg border font-bold ${
-                          surveyFormData.relevanceRating >= star
-                            ? 'bg-amber-100 border-amber-300 text-amber-900'
-                            : 'bg-gray-50 border-gray-200 text-text-muted'
-                        }`}
+                        onClick={() => setMicroSurveyStep(1)}
+                        className="px-4 py-2 rounded-lg border border-gray-300 text-text-muted font-semibold"
                       >
-                        ★ {star}
+                        Back
                       </button>
-                    ))}
+                      <button
+                        type="button"
+                        onClick={() => setMicroSurveyStep(3)}
+                        className="bg-primary-navy text-white px-5 py-2 rounded-lg font-bold hover:bg-deep-navy"
+                      >
+                        Next: Job Relevance →
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
 
-                <div>
-                  <label className="block font-bold text-text-dark mb-1">
-                    4. Any feedback or career challenges you want to flag to the Ministry?
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={surveyFormData.feedbackNote}
-                    onChange={(e) => setSurveyFormData({ ...surveyFormData, feedbackNote: e.target.value })}
-                    className="w-full px-3 py-2 rounded-lg border border-gray-300"
-                  />
-                </div>
+                {/* STEP 3: TRAINING RELEVANCE */}
+                {microSurveyStep === 3 && (
+                  <div className="space-y-3">
+                    <label className="block font-bold text-text-dark text-sm">
+                      3. Is this job related to your PMKVY course?
+                    </label>
+                    <p className="text-text-muted text-[11px]">
+                      Measures curricular effectiveness and skill alignment for state policy planning.
+                    </p>
 
-                <div className="pt-2 flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowSurveyModal(false)}
-                    className="px-4 py-2 rounded-lg border border-gray-300 font-semibold"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="bg-saffron text-white px-5 py-2 rounded-lg font-bold hover:bg-orange-600"
-                  >
-                    Submit Follow-Up Survey →
-                  </button>
-                </div>
-              </form>
+                    <div className="grid grid-cols-1 gap-2 pt-1">
+                      {[
+                        { id: 'Yes', title: 'Yes, Directly Related', desc: 'Daily tasks use React, SQL, and Web Development skills', badge: '+15% Index' },
+                        { id: 'Partly', title: 'Partly Related', desc: 'Uses some digital & problem solving skills learned', badge: '+8% Index' },
+                        { id: 'No', title: 'No, Different Domain', desc: 'Working in non-technical or alternate field', badge: 'Flagged for Audit' },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => {
+                            setSurveyFormData({ ...surveyFormData, trainingRelevance: item.id });
+                            setMicroSurveyStep(4);
+                          }}
+                          className={`p-3 rounded-xl border text-left flex justify-between items-center transition-all ${
+                            surveyFormData.trainingRelevance === item.id
+                              ? 'border-primary-blue bg-blue-50/50 shadow-xs'
+                              : 'border-gray-200 hover:border-gray-300 bg-white'
+                          }`}
+                        >
+                          <div>
+                            <p className="font-bold text-text-dark">{item.title}</p>
+                            <p className="text-text-muted text-[11px] mt-0.5">{item.desc}</p>
+                          </div>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-text-dark border border-gray-200">
+                            {item.badge}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="pt-2 flex justify-start">
+                      <button
+                        type="button"
+                        onClick={() => setMicroSurveyStep(2)}
+                        className="px-4 py-2 rounded-lg border border-gray-300 text-text-muted font-semibold"
+                      >
+                        Back
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 4: SUPPORTING EVIDENCE (OPTIONAL +35% BOOST) */}
+                {microSurveyStep === 4 && (
+                  <div className="space-y-3">
+                    <label className="block font-bold text-text-dark text-sm">
+                      4. Supporting Evidence (Optional)
+                    </label>
+                    <p className="text-text-muted text-[11px]">
+                      Providing supporting proof elevates your Outcome Passport to <span className="font-bold text-success-green">88% Verified Status 🟢</span>.
+                    </p>
+
+                    <div className="p-3 bg-blue-50/50 rounded-xl border border-blue-100 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-primary-navy">Attach Proof of Outcome</span>
+                        <span className="text-[10px] bg-green-100 text-success-green font-bold px-2 py-0.5 rounded-full">+35% Confidence</span>
+                      </div>
+                      <select
+                        value={surveyFormData.evidenceDocType}
+                        onChange={(e) => setSurveyFormData({ ...surveyFormData, evidenceDocType: e.target.value })}
+                        className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white"
+                      >
+                        <option value="Salary Slip / Offer Letter">Recent Salary Slip / Offer Letter (Uploaded)</option>
+                        <option value="EPFO UAN Number">EPFO UAN / Social Security Number</option>
+                        <option value="Self Declaration">Formal Self-Declaration</option>
+                      </select>
+                      <p className="text-[10px] text-text-muted">
+                        ✓ TechNova_Jul2025_PaySlip.pdf attached automatically from DigiLocker.
+                      </p>
+                    </div>
+
+                    <div className="p-3 bg-gray-50 rounded-xl space-y-1 text-[11px] text-text-muted">
+                      <div className="flex items-center gap-2">
+                        <ShieldCheck size={14} className="text-primary-blue" />
+                        <span className="font-bold text-text-dark">DPDP Act 2023 Consent Declaration</span>
+                      </div>
+                      <p>
+                        I consent to sharing this outcome evidence with MSDE for national livelihood policy planning and longitudinal skill outcome research.
+                      </p>
+                    </div>
+
+                    <div className="pt-2 flex justify-between gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setMicroSurveyStep(3)}
+                        className="px-4 py-2 rounded-lg border border-gray-300 text-text-muted font-semibold"
+                      >
+                        Back
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleSurveySubmit()}
+                        className="bg-saffron text-white px-5 py-2.5 rounded-lg font-bold hover:bg-orange-600 shadow-sm"
+                      >
+                        Complete Micro-Survey (Done!) →
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             )}
+          </motion.div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL 1B: OUTCOME EVIDENCE TRAIL MODAL (PILLAR 5) */}
+      {/* ======================================================== */}
+      {showEvidenceTrailModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl border border-gray-200"
+          >
+            <div className="flex justify-between items-center pb-2 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <span className="w-3 h-3 rounded-full bg-success-green animate-pulse" />
+                <h3 className="text-sm font-bold text-primary-navy">
+                  Outcome Evidence Trail — {studentProfile.studentId}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowEvidenceTrailModal(false)}
+                className="text-text-muted hover:text-text-dark font-bold text-sm"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="bg-slate-50 p-4 rounded-xl border border-gray-200 space-y-3 text-xs">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-[10px] text-text-muted uppercase tracking-wider font-semibold">Outcome Status</span>
+                  <p className="font-bold text-success-green text-sm flex items-center gap-1">
+                    🟢 {outcomeEvidence.status}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="text-[10px] text-text-muted uppercase tracking-wider font-semibold">Evidence Confidence</span>
+                  <p className="font-bold text-primary-navy text-xl">{outcomeEvidence.confidenceScore}%</p>
+                </div>
+              </div>
+
+              <div className="p-2.5 bg-blue-50/60 rounded-lg border border-blue-100 text-[11px] text-primary-navy">
+                <span className="font-semibold">Epistemic Standard:</span> Answers <em>“How strong is the available evidence supporting this reported outcome?”</em> under Government of India skilling telemetry policy.
+              </div>
+            </div>
+
+            {/* Evidence Steps Trail */}
+            <div className="space-y-2 text-xs">
+              <h4 className="font-bold text-primary-navy text-[11px] uppercase tracking-wider">
+                Contributing Evidence Factors
+              </h4>
+              {outcomeEvidence.evidenceTrail.map((item, idx) => (
+                <div key={idx} className="p-3 bg-white rounded-xl border border-gray-200 flex items-start justify-between gap-3 shadow-2xs">
+                  <div className="space-y-0.5">
+                    <p className="font-bold text-text-dark flex items-center gap-1.5">
+                      <CheckCircle2 size={13} className="text-success-green flex-shrink-0" />
+                      {item.step}
+                    </p>
+                    <p className="text-text-muted text-[11px]">{item.detail}</p>
+                  </div>
+                  <span className="font-mono font-bold text-xs bg-green-50 text-success-green border border-green-200 px-2 py-0.5 rounded-md whitespace-nowrap">
+                    {item.weight}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-2 flex justify-between items-center text-[11px] text-text-muted border-t border-gray-100">
+              <span className="flex items-center gap-1">
+                <ShieldCheck size={13} className="text-primary-blue" />
+                DPDP Act 2023 Consent Validated
+              </span>
+              <button
+                onClick={() => setShowEvidenceTrailModal(false)}
+                className="bg-primary-navy text-white px-4 py-2 rounded-lg font-bold hover:bg-deep-navy text-xs"
+              >
+                Close Audit Trail
+              </button>
+            </div>
           </motion.div>
         </div>
       )}
