@@ -501,43 +501,6 @@ export default function StudentPortalPage() {
           </div>
         </div>
 
-        {/* 2. SIH GUIDED PROTOTYPE EXPLORATION BANNER */}
-        <div className="bg-gradient-to-r from-primary-navy via-primary-blue to-deep-navy text-white text-xs py-2 px-4 shadow-inner">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="bg-saffron text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                SIH Evaluator Guide
-              </span>
-              <span className="font-medium text-blue-100">
-                Recommended Outcome Flow:
-              </span>
-            </div>
-            {/* Quick Flow Pills */}
-            <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-              {[
-                { id: 'dashboard', label: '1. Dashboard' },
-                { id: 'skills', label: '2. Skills' },
-                { id: 'skill-gap', label: '3. AI Skill Gap' },
-                { id: 'learning', label: '4. Learning' },
-                { id: 'employment', label: '5. Employment' },
-                { id: 'career', label: '6. Wage Progress' },
-                { id: 'follow-up', label: '7. Follow-Up' },
-              ].map((step) => (
-                <button
-                  key={step.id}
-                  onClick={() => setActiveTab(step.id as TabType)}
-                  className={`px-2.5 py-0.5 rounded-full font-semibold transition-all ${
-                    activeTab === step.id
-                      ? 'bg-saffron text-white shadow-sm scale-105'
-                      : 'bg-white/15 text-blue-100 hover:bg-white/25'
-                  }`}
-                >
-                  {step.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
 
         {/* 3. NAVIGATION TABS BAR */}
         <div className="bg-white border-b border-gray-200 overflow-x-auto scrollbar-none">

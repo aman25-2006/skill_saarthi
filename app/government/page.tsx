@@ -358,47 +358,6 @@ export default function GovernmentOfficerPortalPage() {
           </div>
         </div>
 
-        {/* 2. SIH GUIDED PROTOTYPE EXPLORATION BANNER */}
-        <div className="bg-gradient-to-r from-orange-600 via-saffron to-amber-600 text-white text-xs py-2 px-4 shadow-inner">
-          <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="bg-white text-saffron text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                SIH Evaluator Flow
-              </span>
-              <span className="font-medium text-orange-100">
-                Recommended Outcome Journey:
-              </span>
-            </div>
-
-            {/* Quick Flow Pills */}
-            <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-              {[
-                { id: 'dashboard', label: '1. Dashboard' },
-                { id: 'students', label: '2. Students' },
-                { id: 'programs', label: '3. Programs' },
-                { id: 'skill-gaps', label: '4. Skill Gaps' },
-                { id: 'employment', label: '5. Employment' },
-                { id: 'wage-career', label: '6. Wage Progress' },
-                { id: 'follow-up', label: '7. Follow-Up' },
-                { id: 'impact', label: '8. Impact' },
-                { id: 'reports', label: '9. Reports' },
-                { id: 'ai-insights', label: '10. AI Insights' },
-              ].map((step) => (
-                <button
-                  key={step.id}
-                  onClick={() => setActiveTab(step.id as GovTabType)}
-                  className={`px-2.5 py-0.5 rounded-full font-semibold transition-all ${
-                    activeTab === step.id
-                      ? 'bg-white text-saffron shadow-sm scale-105 font-bold'
-                      : 'bg-black/15 text-orange-100 hover:bg-black/25'
-                  }`}
-                >
-                  {step.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
 
         {/* 3. NAVIGATION TABS BAR */}
         <div className="bg-white border-b border-gray-200 overflow-x-auto scrollbar-none">
