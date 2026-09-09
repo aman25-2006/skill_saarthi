@@ -404,13 +404,17 @@ export default function StudentPortalPage() {
               S
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="font-bold text-primary-navy text-base leading-none">
                   Skill Saarthi
                 </span>
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-blue-50 text-primary-blue px-2 py-0.5 rounded-full border border-blue-200">
                   <GraduationCap size={12} />
                   Student Portal
+                </span>
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  DEMO / SYNTHETIC DATA (Section 20 Protocol)
                 </span>
               </div>
               <p className="text-[10px] text-text-muted mt-0.5">
@@ -1479,6 +1483,24 @@ export default function StudentPortalPage() {
                       <span className="text-[9px] opacity-90 mt-0.5">{step.sub}</span>
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* Section 14 Benchmark Callout: Outcome Quality Standard */}
+              <div className="p-4 bg-gradient-to-r from-blue-900 via-primary-navy to-slate-900 text-white rounded-2xl border border-blue-800 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
+                <div className="space-y-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-saffron text-white">
+                      Section 14 National Quality Standard
+                    </span>
+                    <span className="font-bold text-white text-sm">Outcome Quality ≠ Day-1 Placement</span>
+                  </div>
+                  <p className="text-blue-100 text-[11px] leading-relaxed">
+                    National benchmark comparison (e.g., Automotive Welder — Nashik: 82% placed, 61% retained at 6M, +18% wage growth). Your verified profile achieves a <strong className="text-emerald-300">90/100 Sustainable Outcome Index</strong> with <strong className="text-saffron">+27% wage progression</strong>.
+                  </p>
+                </div>
+                <div className="px-3.5 py-1.5 rounded-lg bg-white/10 border border-white/20 text-amber-300 text-[11px] font-bold whitespace-nowrap self-start md:self-auto shadow-2xs">
+                  ✓ Verified Sustainable Outcome
                 </div>
               </div>
 

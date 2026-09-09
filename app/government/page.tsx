@@ -91,7 +91,7 @@ export default function GovernmentOfficerPortalPage() {
     institutionalRosterWeight: 17,
     providentFundCrossCheckWeight: 18,
     verificationThreshold: 75, // Scores >= 75% are "Verified Outcome"
-    reviewThreshold: 50,       // Scores 50-74% are "Needs Review"
+    reviewThreshold: 40,       // Scores 40-74% are "Needs Review" (<40% Unverified)
   });
 
   // Officer Profile
@@ -331,13 +331,17 @@ export default function GovernmentOfficerPortalPage() {
               S
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="font-bold text-primary-navy text-base leading-none">
                   Skill Saarthi
                 </span>
                 <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-orange-50 text-saffron px-2 py-0.5 rounded-full border border-orange-200">
                   <Building2 size={12} />
                   Government Officer Portal
+                </span>
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                  DEMO / SYNTHETIC DATA (Section 20 Protocol)
                 </span>
               </div>
               <p className="text-[10px] text-text-muted mt-0.5">
@@ -582,6 +586,24 @@ export default function GovernmentOfficerPortalPage() {
                     <span className="text-[10px] text-purple-200 block">5. Training-Job Relevance</span>
                     <span className="text-lg font-bold text-purple-300 block mt-0.5">84.5%</span>
                     <span className="text-[10px] text-purple-200">High Curricular Match</span>
+                  </div>
+                </div>
+
+                {/* Section 14 Case Study: Automotive Welder — Nashik (Pillar: Placement % ≠ Sustainable Outcome) */}
+                <div className="p-4 bg-white/10 rounded-xl border border-white/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs">
+                  <div className="space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-saffron text-white">
+                        Section 14 Benchmark Case Study
+                      </span>
+                      <span className="font-bold text-white text-sm">Automotive Welder Cohort — Nashik District</span>
+                    </div>
+                    <p className="text-blue-100 text-[11px] leading-relaxed">
+                      Placement: <strong className="text-white font-mono">82%</strong> • Verified Employment: <strong className="text-white font-mono">74%</strong> • 6-Month Retention: <strong className="text-emerald-300 font-mono">61%</strong> • Wage Progression: <strong className="text-saffron font-mono">+18%</strong> • Job Relevance: <strong className="text-purple-300 font-mono">84%</strong>
+                    </p>
+                  </div>
+                  <div className="px-3.5 py-2 rounded-lg bg-white/15 border border-white/25 text-[11px] font-bold text-amber-300 whitespace-nowrap self-start md:self-auto shadow-xs">
+                    💡 “82% placement does not mean 82% sustainable success”
                   </div>
                 </div>
               </div>
@@ -2449,14 +2471,14 @@ export default function GovernmentOfficerPortalPage() {
                       institutionalRosterWeight: 17,
                       providentFundCrossCheckWeight: 18,
                       verificationThreshold: 75,
-                      reviewThreshold: 50,
+                      reviewThreshold: 40,
                     })
                   }
                   className="p-2.5 rounded-lg border border-primary-navy/30 bg-blue-50/50 hover:bg-blue-100/70 text-left transition-colors"
                 >
                   <span className="font-bold text-primary-navy block text-xs">Standard MSDE</span>
                   <span className="text-[10px] text-text-muted block">30 / 35 / 17 / 18</span>
-                  <span className="text-[10px] text-primary-blue font-semibold">Threshold: 75%</span>
+                  <span className="text-[10px] text-primary-blue font-semibold">Threshold: 75% (Review: 40%)</span>
                 </button>
 
                 <button
@@ -2468,14 +2490,14 @@ export default function GovernmentOfficerPortalPage() {
                       institutionalRosterWeight: 15,
                       providentFundCrossCheckWeight: 15,
                       verificationThreshold: 80,
-                      reviewThreshold: 55,
+                      reviewThreshold: 50,
                     })
                   }
                   className="p-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-left transition-colors"
                 >
                   <span className="font-bold text-text-dark block text-xs">High Assurance</span>
                   <span className="text-[10px] text-text-muted block">20 / 50 / 15 / 15</span>
-                  <span className="text-[10px] text-saffron font-semibold">Threshold: 80%</span>
+                  <span className="text-[10px] text-saffron font-semibold">Threshold: 80% (Review: 50%)</span>
                 </button>
 
                 <button
@@ -2487,14 +2509,14 @@ export default function GovernmentOfficerPortalPage() {
                       institutionalRosterWeight: 15,
                       providentFundCrossCheckWeight: 15,
                       verificationThreshold: 65,
-                      reviewThreshold: 45,
+                      reviewThreshold: 35,
                     })
                   }
                   className="p-2.5 rounded-lg border border-gray-200 hover:bg-gray-50 text-left transition-colors"
                 >
                   <span className="font-bold text-text-dark block text-xs">Rural Low-Friction</span>
                   <span className="text-[10px] text-text-muted block">45 / 25 / 15 / 15</span>
-                  <span className="text-[10px] text-success-green font-semibold">Threshold: 65%</span>
+                  <span className="text-[10px] text-success-green font-semibold">Threshold: 65% (Review: 35%)</span>
                 </button>
               </div>
             </div>
@@ -2607,7 +2629,7 @@ export default function GovernmentOfficerPortalPage() {
                       }
                       className="w-16 p-1 border rounded font-mono font-bold text-primary-navy"
                     />
-                    <span className="text-[11px] text-text-muted">% or higher</span>
+                    <span className="text-[11px] text-text-muted">% or higher (Verified)</span>
                   </div>
                 </div>
 
@@ -2616,7 +2638,7 @@ export default function GovernmentOfficerPortalPage() {
                   <div className="flex items-center gap-2 mt-1">
                     <input
                       type="number"
-                      min={40}
+                      min={25}
                       max={74}
                       value={evidencePolicy.reviewThreshold}
                       onChange={(e) =>
@@ -2626,6 +2648,38 @@ export default function GovernmentOfficerPortalPage() {
                     />
                     <span className="text-[11px] text-text-muted">% to {evidencePolicy.verificationThreshold - 1}%</span>
                   </div>
+                </div>
+              </div>
+
+              {/* Section 10 Decision Matrix & Section 11 Worked Example */}
+              <div className="p-3 bg-slate-50 rounded-xl border border-gray-200 space-y-2 text-[11px]">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-primary-navy uppercase tracking-wider text-[10px]">
+                    Section 10 &amp; 11: National Decision Matrix &amp; Worked Example
+                  </span>
+                  <span className="text-[10px] text-text-muted">SIH Protocol</span>
+                </div>
+
+                <div className="grid grid-cols-3 gap-1.5 text-center font-semibold text-[10px]">
+                  <div className="p-1.5 bg-green-50 text-success-green border border-green-200 rounded">
+                    &ge;{evidencePolicy.verificationThreshold}% &rarr; Verified Outcome
+                  </div>
+                  <div className="p-1.5 bg-amber-50 text-amber-800 border border-amber-200 rounded">
+                    {evidencePolicy.reviewThreshold}–{evidencePolicy.verificationThreshold - 1}% &rarr; Needs Review
+                  </div>
+                  <div className="p-1.5 bg-red-50 text-red-700 border border-red-200 rounded">
+                    &lt;{evidencePolicy.reviewThreshold}% &rarr; Unverified Outcome
+                  </div>
+                </div>
+
+                <div className="p-2 bg-white rounded-lg border border-gray-200 text-text-muted space-y-1">
+                  <span className="font-bold text-text-dark block">Worked Confidence Calculation (Section 11 Example):</span>
+                  <p className="font-mono text-[10px] text-primary-navy">
+                    Learner (+20) + Employer (+25) + Salary/Consistency (+20) + Doc (+0) + Follow-Up (+15) = <strong>80% &rarr; Verified Outcome</strong>
+                  </p>
+                  <p className="text-[10px] text-text-muted italic">
+                    *The policy is transparent, configurable and auditable by government inspectors.
+                  </p>
                 </div>
               </div>
             </div>
