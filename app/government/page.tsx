@@ -28,7 +28,13 @@ import {
   Bell,
   Settings,
   Layers,
+  Sun,
+  Moon,
+  Globe,
 } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { SupportedLanguage } from '@/context/translations';
 
 type GovTabType =
   | 'dashboard'
@@ -71,6 +77,8 @@ interface StudentRecord {
 
 export default function GovernmentOfficerPortalPage() {
   const router = useRouter();
+  const { theme, toggleTheme } = useTheme();
+  const { language, setLanguage, languages } = useLanguage();
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<GovTabType>('dashboard');
@@ -317,11 +325,26 @@ export default function GovernmentOfficerPortalPage() {
     router.push('/login/government');
   };
 
+  const govTabDefinitions: { id: GovTabType; label: string; labels: Record<string, string>; icon: React.ComponentType<{ size?: number | string; className?: string }> }[] = [
+    { id: 'dashboard', label: 'Dashboard', labels: { en: 'Dashboard', hi: 'डैशबोर्ड', mr: 'डॅशबोर्ड' }, icon: BarChart3 },
+    { id: 'students', label: 'Student Management', labels: { en: 'Students', hi: 'छात्र प्रबंधन', mr: 'विद्यार्थी व्यवस्थापन' }, icon: Users },
+    { id: 'programs', label: 'Training Programs', labels: { en: 'Programs', hi: 'प्रशिक्षण कार्यक्रम', mr: 'प्रशिक्षण कार्यक्रम' }, icon: Award },
+    { id: 'providers', label: 'Training Providers', labels: { en: 'Providers', hi: 'प्रशिक्षण प्रदाता', mr: 'संस्था व्यवस्थापन' }, icon: Building },
+    { id: 'skill-gaps', label: 'Skill Gap Analytics', labels: { en: 'Skill Gaps', hi: 'कौशल अंतर', mr: 'कौशल्य तफावत' }, icon: Brain },
+    { id: 'employment', label: 'Employment Analytics', labels: { en: 'Employment', hi: 'रोजगार विश्लेषण', mr: 'रोजगार विश्लेषण' }, icon: Briefcase },
+    { id: 'wage-career', label: 'Wage & Career', labels: { en: 'Wage & Career', hi: 'वेतन व करियर', mr: 'वेतन व कारकीर्द' }, icon: TrendingUp },
+    { id: 'follow-up', label: 'Follow-Up Monitoring', labels: { en: 'Follow-Ups', hi: 'फॉलो-अप मॉनिटरिंग', mr: 'पाठपुरावा नियंत्रण' }, icon: Clock },
+    { id: 'impact', label: 'Impact & ROI', labels: { en: 'Impact & ROI', hi: 'प्रभाव व आरओआई', mr: 'प्रभाव व परतावा' }, icon: Landmark },
+    { id: 'reports', label: 'Reports & Export', labels: { en: 'Reports', hi: 'रिपोर्ट्स व निर्यात', mr: 'अहवाल व निर्यात' }, icon: FileText },
+    { id: 'alerts', label: 'Policy Flags', labels: { en: 'Policy Flags', hi: 'नीतिगत अलर्ट', mr: 'धोरणात्मक इशारे' }, icon: AlertCircle },
+    { id: 'ai-insights', label: 'AI Macro Insights', labels: { en: 'AI Insights', hi: 'एआई इनसाइट्स', mr: 'एआय विश्लेषण' }, icon: Sparkles },
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-between text-text-dark selection:bg-saffron selection:text-white">
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-slate-900 text-slate-100' : 'bg-slate-50 text-text-dark'} flex flex-col justify-between selection:bg-saffron selection:text-white transition-colors duration-200`}>
       {/* 1. TOP OFFICIAL GOVERNMENT OFFICER NAVBAR */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
+      <header className={`${theme === 'dark' ? 'bg-slate-950 border-slate-800' : 'bg-white border-gray-200'} border-b sticky top-0 z-40 shadow-xs transition-colors duration-200`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-3">
           {/* Brand Identity */}
           <Link
             href="/"
@@ -332,47 +355,74 @@ export default function GovernmentOfficerPortalPage() {
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="font-bold text-primary-navy text-base leading-none">
+                <span className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-primary-navy'} text-base leading-none`}>
                   Skill Saarthi
                 </span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-orange-50 text-saffron px-2 py-0.5 rounded-full border border-orange-200">
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-orange-50 dark:bg-amber-950/40 text-saffron dark:text-amber-400 px-2 py-0.5 rounded-full border border-orange-200 dark:border-amber-800/60">
                   <Building2 size={12} />
                   Government Officer Portal
                 </span>
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs">
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800/60 shadow-2xs">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                   DEMO / SYNTHETIC DATA (Section 20 Protocol)
                 </span>
               </div>
-              <p className="text-[10px] text-text-muted mt-0.5">
+              <p className="text-[10px] text-text-muted dark:text-slate-400 mt-0.5">
                 Ministry of Skill Development &amp; Entrepreneurship, GoI
               </p>
             </div>
           </Link>
 
           {/* Top Quick Actions & Officer Chip */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Language Selector */}
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-gray-200 dark:border-slate-700 text-xs font-semibold">
+              <Globe size={14} className="text-saffron dark:text-amber-400 ml-1" />
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
+                className="bg-transparent text-xs font-semibold cursor-pointer focus:outline-none pr-1 text-slate-800 dark:text-slate-100"
+                aria-label="Language"
+              >
+                {languages.map((l) => (
+                  <option key={l.code} value={l.code} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">
+                    {l.native}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors border border-gray-200 dark:border-slate-700"
+              aria-label="Toggle theme"
+              title={theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+            >
+              {theme === 'dark' ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-primary-navy" />}
+            </button>
+
             {/* Notifications Bell */}
             <div className="relative">
               <button
                 onClick={() => setShowNotificationsDrawer(!showNotificationsDrawer)}
-                className="p-2 text-text-muted hover:text-saffron hover:bg-orange-50 rounded-lg relative transition-colors focus:outline-none"
+                className="p-2 text-text-muted dark:text-slate-400 hover:text-saffron hover:bg-orange-50 dark:hover:bg-slate-800 rounded-lg relative transition-colors focus:outline-none"
                 aria-label="Alerts"
               >
-                <Bell size={18} />
+                <Bell size={17} />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-saffron rounded-full animate-pulse" />
               </button>
 
               {/* Notifications Popover */}
               {showNotificationsDrawer && (
-                <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-4 space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-gray-100">
-                    <span className="font-bold text-xs text-primary-navy uppercase tracking-wider">
+                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl shadow-xl z-50 p-4 space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-700">
+                    <span className="font-bold text-xs text-primary-navy dark:text-sky-300 uppercase tracking-wider">
                       Policy Flags &amp; Alerts (3)
                     </span>
                     <button
                       onClick={() => setShowNotificationsDrawer(false)}
-                      className="text-xs text-text-muted hover:text-text-dark"
+                      className="text-xs text-text-muted dark:text-slate-400 hover:text-text-dark"
                     >
                       ✕
                     </button>
@@ -383,13 +433,13 @@ export default function GovernmentOfficerPortalPage() {
                         setActiveTab('alerts');
                         setShowNotificationsDrawer(false);
                       }}
-                      className="p-2.5 bg-red-50 border border-red-200 rounded-lg cursor-pointer hover:bg-red-100 transition-colors"
+                      className="p-2.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-lg cursor-pointer hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
                     >
-                      <p className="font-bold text-red-700 flex items-center gap-1">
+                      <p className="font-bold text-red-700 dark:text-red-400 flex items-center gap-1">
                         <AlertCircle size={13} />
                         Low Placement Flag
                       </p>
-                      <p className="text-text-muted mt-0.5">
+                      <p className="text-text-muted dark:text-slate-400 mt-0.5">
                         Bhagalpur ITI Skill Annex reported 42% placement in Q1. Audit required.
                       </p>
                     </div>
@@ -398,13 +448,13 @@ export default function GovernmentOfficerPortalPage() {
                         setActiveTab('skill-gaps');
                         setShowNotificationsDrawer(false);
                       }}
-                      className="p-2.5 bg-orange-50 border border-orange-200 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors"
+                      className="p-2.5 bg-orange-50 dark:bg-amber-950/40 border border-orange-200 dark:border-amber-800/60 rounded-lg cursor-pointer hover:bg-orange-100 dark:hover:bg-amber-900/40 transition-colors"
                     >
-                      <p className="font-bold text-saffron flex items-center gap-1">
+                      <p className="font-bold text-saffron dark:text-amber-400 flex items-center gap-1">
                         <Brain size={13} />
                         Surge in Digital Gaps
                       </p>
-                      <p className="text-text-muted mt-0.5">
+                      <p className="text-text-muted dark:text-slate-400 mt-0.5">
                         2,450 students in Muzaffarpur missing Docker / Cloud competencies.
                       </p>
                     </div>
@@ -415,8 +465,8 @@ export default function GovernmentOfficerPortalPage() {
 
             {/* Officer Identification Chip */}
             <div className="hidden sm:flex flex-col text-right">
-              <span className="text-xs font-bold text-text-dark leading-tight">{officerProfile.name}</span>
-              <span className="text-[10px] text-text-muted truncate max-w-[200px]">
+              <span className="text-xs font-bold text-text-dark dark:text-slate-100 leading-tight">{officerProfile.name}</span>
+              <span className="text-[10px] text-text-muted dark:text-slate-400 truncate max-w-[200px]">
                 {officerProfile.designation}
               </span>
             </div>
@@ -424,16 +474,16 @@ export default function GovernmentOfficerPortalPage() {
             {/* Officer Settings Modal Trigger */}
             <button
               onClick={() => setShowOfficerSettingsModal(true)}
-              className="p-2 text-text-muted hover:text-saffron hover:bg-orange-50 rounded-lg transition-colors focus:outline-none"
+              className="p-2 text-text-muted dark:text-slate-400 hover:text-saffron hover:bg-orange-50 dark:hover:bg-slate-800 rounded-lg transition-colors focus:outline-none"
               title="Officer Profile & Settings"
             >
-              <Settings size={18} />
+              <Settings size={17} />
             </button>
 
             {/* Sign Out Button */}
             <button
               onClick={handleSignOut}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-text-muted hover:text-red-600 px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-text-muted dark:text-slate-400 hover:text-red-600 px-2.5 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
               title="Sign Out"
             >
               <LogOut size={15} />
@@ -442,41 +492,28 @@ export default function GovernmentOfficerPortalPage() {
           </div>
         </div>
 
-
         {/* 3. NAVIGATION TABS BAR */}
-        <div className="bg-white border-b border-gray-200 overflow-x-auto scrollbar-none">
+        <div className={`${theme === 'dark' ? 'bg-slate-950 border-slate-800' : 'bg-white border-gray-200'} border-b overflow-x-auto scrollbar-none transition-colors duration-200`}>
           <div className="max-w-7xl mx-auto px-4 flex gap-1 sm:gap-2 min-w-max">
-            {[
-              { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-              { id: 'students', label: 'Student Management', icon: Users },
-              { id: 'programs', label: 'Training Programs', icon: Award },
-              { id: 'providers', label: 'Training Providers', icon: Building },
-              { id: 'skill-gaps', label: 'Skill Gap Analytics', icon: Brain },
-              { id: 'employment', label: 'Employment Analytics', icon: Briefcase },
-              { id: 'wage-career', label: 'Wage & Career', icon: TrendingUp },
-              { id: 'follow-up', label: 'Follow-Up Monitoring', icon: Clock },
-              { id: 'impact', label: 'Impact & ROI', icon: Landmark },
-              { id: 'reports', label: 'Reports & Export', icon: FileText },
-              { id: 'alerts', label: 'Policy Flags', icon: AlertCircle },
-              { id: 'ai-insights', label: 'AI Macro Insights', icon: Sparkles },
-            ].map((tab) => {
+            {govTabDefinitions.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
+              const currentLabel = tab.labels[language] || tab.label;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as GovTabType)}
                   className={`flex items-center gap-1.5 py-3 px-3.5 text-xs font-semibold border-b-2 transition-all ${
                     isActive
-                      ? 'border-saffron text-saffron font-bold bg-orange-50/40'
-                      : 'border-transparent text-text-muted hover:text-text-dark hover:border-gray-300'
+                      ? 'border-saffron text-saffron dark:text-amber-400 font-bold bg-orange-50/40 dark:bg-amber-500/10'
+                      : 'border-transparent text-text-muted dark:text-slate-400 hover:text-text-dark dark:hover:text-slate-200 hover:border-gray-300 dark:hover:border-slate-700'
                   }`}
                 >
                   <Icon
                     size={15}
-                    className={isActive ? 'text-saffron' : 'text-text-muted'}
+                    className={isActive ? 'text-saffron dark:text-amber-400' : 'text-text-muted dark:text-slate-400'}
                   />
-                  <span>{tab.label}</span>
+                  <span>{currentLabel}</span>
                 </button>
               );
             })}

@@ -15,10 +15,18 @@ import {
   Cpu,
   KeyRound,
   ShieldCheck,
+  Sun,
+  Moon,
+  Globe,
 } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { SupportedLanguage } from '@/context/translations';
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const { theme, toggleTheme } = useTheme();
+  const { language, setLanguage, languages } = useLanguage();
 
   // Mode: 'signin' or 'security-pin'
   const [authMode, setAuthMode] = useState<'signin' | 'security-pin'>('signin');
@@ -77,21 +85,51 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-between selection:bg-rose-500 selection:text-white">
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-900'} flex flex-col justify-between selection:bg-rose-500 selection:text-white transition-colors duration-200`}>
       {/* Top Header */}
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur-md px-4 sm:px-8 py-3.5 flex items-center justify-between">
+      <header className={`border-b ${theme === 'dark' ? 'border-slate-800 bg-slate-950/80' : 'border-gray-200 bg-white/80'} backdrop-blur-md px-4 sm:px-8 py-3 flex items-center justify-between gap-3 transition-colors duration-200`}>
         <Link
           href="/"
-          className="flex items-center gap-2 text-slate-400 hover:text-white text-xs font-semibold transition-colors"
+          className="flex items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs font-semibold transition-colors"
         >
           <ArrowLeft size={16} />
           <span>Back to Landing Page</span>
         </Link>
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-          <span className="text-[11px] font-mono text-slate-300 font-semibold">
-            Central Ops Gateway • 256-Bit SSL
-          </span>
+
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Language Selector */}
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-gray-200 dark:border-slate-700 text-xs font-semibold">
+            <Globe size={13} className="text-rose-500 ml-1" />
+            <select
+              value={language}
+              onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
+              className="bg-transparent text-xs font-semibold cursor-pointer focus:outline-none pr-1 text-slate-800 dark:text-slate-100"
+              aria-label="Language"
+            >
+              {languages.map((l) => (
+                <option key={l.code} value={l.code} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">
+                  {l.native}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleTheme}
+            className="p-1.5 text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors border border-gray-200 dark:border-slate-700"
+            aria-label="Toggle theme"
+            title={theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+          >
+            {theme === 'dark' ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} className="text-rose-600" />}
+          </button>
+
+          <div className="hidden sm:flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[11px] font-mono text-slate-500 dark:text-slate-300 font-semibold">
+              Central Ops • 256-Bit SSL
+            </span>
+          </div>
         </div>
       </header>
 
@@ -100,7 +138,7 @@ export default function AdminLoginPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-slate-800/90 border border-slate-700 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6 relative overflow-hidden"
+          className={`${theme === 'dark' ? 'bg-slate-800/90 border-slate-700' : 'bg-white border-gray-200'} border rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-6 relative overflow-hidden transition-colors duration-200`}
         >
           {/* Subtle Ambient Glow */}
           <div className="absolute -top-24 -right-24 w-48 h-48 bg-rose-500/10 rounded-full blur-3xl pointer-events-none" />

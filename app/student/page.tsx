@@ -24,11 +24,17 @@ import {
   Settings,
   Send,
   Check,
-  Star,
   Layers,
   Cpu,
   BarChart3,
+  Sun,
+  Moon,
+  Globe,
+  Star,
 } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { SupportedLanguage } from '@/context/translations';
 
 type TabType =
   | 'dashboard'
@@ -58,6 +64,8 @@ interface ChatMessage {
 
 export default function StudentPortalPage() {
   const router = useRouter();
+  const { theme, toggleTheme } = useTheme();
+  const { language, setLanguage, languages } = useLanguage();
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
@@ -390,11 +398,24 @@ export default function StudentPortalPage() {
     router.push('/login/student');
   };
 
+  const tabDefinitions: { id: TabType; label: string; labels: Record<string, string>; icon: React.ComponentType<{ size?: number | string; className?: string }> }[] = [
+    { id: 'dashboard', label: 'Dashboard', labels: { en: 'Dashboard', hi: 'डैशबोर्ड', mr: 'डॅशबोर्ड' }, icon: BarChart3 },
+    { id: 'career', label: 'Outcome Passport', labels: { en: 'Outcome Passport', hi: 'आउटकम पासपोर्ट', mr: 'आउटकम पासपोर्ट' }, icon: TrendingUp },
+    { id: 'profile', label: 'My Profile', labels: { en: 'My Profile', hi: 'मेरी प्रोफाइल', mr: 'माझी प्रोफाइल' }, icon: User },
+    { id: 'training', label: 'My Training', labels: { en: 'My Training', hi: 'मेरा प्रशिक्षण', mr: 'माझे प्रशिक्षण' }, icon: BookOpen },
+    { id: 'skills', label: 'My Skills', labels: { en: 'My Skills', hi: 'मेरे कौशल', mr: 'माझी कौशल्ये' }, icon: Sparkles },
+    { id: 'skill-gap', label: 'AI Skill Gap', labels: { en: 'AI Skill Gap', hi: 'एआई कौशल अंतर', mr: 'एआय कौशल्य तफावत' }, icon: Brain },
+    { id: 'learning', label: 'Recommended Learning', labels: { en: 'Recommended Learning', hi: 'सुझाया गया प्रशिक्षण', mr: 'शिफारस केलेले प्रशिक्षण' }, icon: Layers },
+    { id: 'employment', label: 'Employment', labels: { en: 'Employment', hi: 'रोजगार व वेतन', mr: 'रोजगार व वेतन' }, icon: Briefcase },
+    { id: 'follow-up', label: 'Milestones & Evidence', labels: { en: 'Milestones & Evidence', hi: 'पड़ाव व साक्ष्य', mr: 'टप्पे व पुरावे' }, icon: Clock },
+    { id: 'ai-assistant', label: 'AI Assistant', labels: { en: 'AI Assistant', hi: 'एआई सहायक', mr: 'एआय सहाय्यक' }, icon: Cpu },
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-between text-text-dark selection:bg-primary-blue selection:text-white">
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-slate-900 text-slate-100' : 'bg-slate-50 text-text-dark'} flex flex-col justify-between selection:bg-primary-blue selection:text-white transition-colors duration-200`}>
       {/* 1. TOP OFFICIAL GOVERNMENT PLATFORM NAVBAR */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
+      <header className={`${theme === 'dark' ? 'bg-slate-950 border-slate-800' : 'bg-white border-gray-200'} border-b sticky top-0 z-40 shadow-xs transition-colors duration-200`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-3">
           {/* Brand Identity */}
           <Link
             href="/"
@@ -405,47 +426,74 @@ export default function StudentPortalPage() {
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="font-bold text-primary-navy text-base leading-none">
+                <span className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-primary-navy'} text-base leading-none`}>
                   Skill Saarthi
                 </span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-blue-50 text-primary-blue px-2 py-0.5 rounded-full border border-blue-200">
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-blue-50 dark:bg-blue-900/30 text-primary-blue dark:text-sky-300 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">
                   <GraduationCap size={12} />
                   Student Portal
                 </span>
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 text-amber-900 border border-amber-300 shadow-2xs">
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-800/60 shadow-2xs">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                   DEMO / SYNTHETIC DATA (Section 20 Protocol)
                 </span>
               </div>
-              <p className="text-[10px] text-text-muted mt-0.5">
+              <p className="text-[10px] text-text-muted dark:text-slate-400 mt-0.5">
                 Ministry of Skill Development &amp; Entrepreneurship, GoI
               </p>
             </div>
           </Link>
 
           {/* Quick Actions & Profile Badge */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Language Selector */}
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-gray-200 dark:border-slate-700 text-xs font-semibold">
+              <Globe size={14} className="text-primary-blue dark:text-sky-400 ml-1" />
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
+                className="bg-transparent text-xs font-semibold cursor-pointer focus:outline-none pr-1 text-slate-800 dark:text-slate-100"
+                aria-label="Language"
+              >
+                {languages.map((l) => (
+                  <option key={l.code} value={l.code} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">
+                    {l.native}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors border border-gray-200 dark:border-slate-700"
+              aria-label="Toggle theme"
+              title={theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+            >
+              {theme === 'dark' ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-primary-navy" />}
+            </button>
+
             {/* Notifications Bell */}
             <div className="relative">
               <button
                 onClick={() => setShowNotificationsDrawer(!showNotificationsDrawer)}
-                className="p-2 text-text-muted hover:text-primary-navy hover:bg-gray-100 rounded-lg relative transition-colors focus:outline-none"
+                className="p-2 text-text-muted dark:text-slate-400 hover:text-primary-navy dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg relative transition-colors focus:outline-none"
                 aria-label="Notifications"
               >
-                <Bell size={18} />
+                <Bell size={17} />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-saffron rounded-full animate-pulse" />
               </button>
 
               {/* Notifications Popover */}
               {showNotificationsDrawer && (
-                <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-xl shadow-xl z-50 p-4 space-y-3">
-                  <div className="flex items-center justify-between pb-2 border-b border-gray-100">
-                    <span className="font-bold text-xs text-primary-navy uppercase tracking-wider">
+                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl shadow-xl z-50 p-4 space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-700">
+                    <span className="font-bold text-xs text-primary-navy dark:text-sky-300 uppercase tracking-wider">
                       Notifications (2)
                     </span>
                     <button
                       onClick={() => setShowNotificationsDrawer(false)}
-                      className="text-xs text-text-muted hover:text-text-dark"
+                      className="text-xs text-text-muted dark:text-slate-400 hover:text-text-dark"
                     >
                       ✕
                     </button>
@@ -456,13 +504,13 @@ export default function StudentPortalPage() {
                         setActiveTab('follow-up');
                         setShowNotificationsDrawer(false);
                       }}
-                      className="p-2.5 bg-orange-50 border border-orange-200 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors"
+                      className="p-2.5 bg-orange-50 dark:bg-amber-950/40 border border-orange-200 dark:border-amber-800/60 rounded-lg cursor-pointer hover:bg-orange-100 dark:hover:bg-amber-900/40 transition-colors"
                     >
-                      <p className="font-bold text-saffron flex items-center gap-1">
+                      <p className="font-bold text-saffron dark:text-amber-300 flex items-center gap-1">
                         <AlertCircle size={13} />
                         6-Month Follow-Up Due
                       </p>
-                      <p className="text-text-muted mt-0.5">
+                      <p className="text-text-muted dark:text-slate-400 mt-0.5">
                         Please confirm your wage increment &amp; job stability.
                       </p>
                     </div>
@@ -471,13 +519,13 @@ export default function StudentPortalPage() {
                         setActiveTab('learning');
                         setShowNotificationsDrawer(false);
                       }}
-                      className="p-2.5 bg-blue-50 border border-blue-200 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
+                      className="p-2.5 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 rounded-lg cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors"
                     >
-                      <p className="font-bold text-primary-blue flex items-center gap-1">
+                      <p className="font-bold text-primary-blue dark:text-sky-300 flex items-center gap-1">
                         <Sparkles size={13} />
                         New Recommended Course
                       </p>
-                      <p className="text-text-muted mt-0.5">
+                      <p className="text-text-muted dark:text-slate-400 mt-0.5">
                         NCVET Docker course added to close your identified skill gap.
                       </p>
                     </div>
@@ -488,10 +536,10 @@ export default function StudentPortalPage() {
 
             {/* Student ID Chip */}
             <div className="hidden sm:flex flex-col text-right">
-              <span className="text-xs font-bold text-text-dark leading-tight">
+              <span className="text-xs font-bold text-text-dark dark:text-slate-100 leading-tight">
                 {studentProfile.fullName}
               </span>
-              <span className="text-[10px] text-text-muted font-mono">
+              <span className="text-[10px] text-text-muted dark:text-slate-400 font-mono">
                 {studentProfile.studentId}
               </span>
             </div>
@@ -499,16 +547,16 @@ export default function StudentPortalPage() {
             {/* Settings Button */}
             <button
               onClick={() => setShowSettingsModal(true)}
-              className="p-2 text-text-muted hover:text-primary-navy hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
+              className="p-2 text-text-muted dark:text-slate-400 hover:text-primary-navy dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors focus:outline-none"
               title="Privacy & Settings"
             >
-              <Settings size={18} />
+              <Settings size={17} />
             </button>
 
             {/* Sign Out Button */}
             <button
               onClick={handleSignOut}
-              className="inline-flex items-center gap-1 text-xs font-semibold text-text-muted hover:text-red-600 px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-colors"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-text-muted dark:text-slate-400 hover:text-red-600 px-2.5 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
               title="Sign Out"
             >
               <LogOut size={15} />
@@ -517,39 +565,28 @@ export default function StudentPortalPage() {
           </div>
         </div>
 
-
         {/* 3. NAVIGATION TABS BAR */}
-        <div className="bg-white border-b border-gray-200 overflow-x-auto scrollbar-none">
+        <div className={`${theme === 'dark' ? 'bg-slate-950 border-slate-800' : 'bg-white border-gray-200'} border-b overflow-x-auto scrollbar-none transition-colors duration-200`}>
           <div className="max-w-7xl mx-auto px-4 flex gap-1 sm:gap-2 min-w-max">
-            {[
-              { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
-              { id: 'career', label: 'Outcome Passport', icon: TrendingUp },
-              { id: 'profile', label: 'My Profile', icon: User },
-              { id: 'training', label: 'My Training', icon: BookOpen },
-              { id: 'skills', label: 'My Skills', icon: Sparkles },
-              { id: 'skill-gap', label: 'AI Skill Gap', icon: Brain },
-              { id: 'learning', label: 'Recommended Learning', icon: Layers },
-              { id: 'employment', label: 'Employment', icon: Briefcase },
-              { id: 'follow-up', label: 'Milestones & Evidence', icon: Clock },
-              { id: 'ai-assistant', label: 'AI Assistant', icon: Cpu },
-            ].map((tab) => {
+            {tabDefinitions.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
+              const currentLabel = tab.labels[language] || tab.label;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as TabType)}
                   className={`flex items-center gap-1.5 py-3 px-3.5 text-xs font-semibold border-b-2 transition-all ${
                     isActive
-                      ? 'border-primary-blue text-primary-navy font-bold bg-blue-50/40'
-                      : 'border-transparent text-text-muted hover:text-text-dark hover:border-gray-300'
+                      ? 'border-primary-blue text-primary-navy dark:text-sky-300 font-bold bg-blue-50/40 dark:bg-sky-500/10'
+                      : 'border-transparent text-text-muted dark:text-slate-400 hover:text-text-dark dark:hover:text-slate-200 hover:border-gray-300 dark:hover:border-slate-700'
                   }`}
                 >
                   <Icon
                     size={15}
-                    className={isActive ? 'text-primary-blue' : 'text-text-muted'}
+                    className={isActive ? 'text-primary-blue dark:text-sky-400' : 'text-text-muted dark:text-slate-400'}
                   />
-                  <span>{tab.label}</span>
+                  <span>{currentLabel}</span>
                 </button>
               );
             })}

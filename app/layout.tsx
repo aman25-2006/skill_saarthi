@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import Providers from '@/components/Providers';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -36,9 +37,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="bg-white text-text-dark">
-        {children}
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('skill_saarthi_theme');
+                  var lang = localStorage.getItem('skill_saarthi_lang');
+                  if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                    document.documentElement.classList.add('dark');
+                  } else {
+                    document.documentElement.classList.remove('dark');
+                  }
+                  if (lang) {
+                    document.documentElement.lang = lang;
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body className="bg-white dark:bg-slate-900 text-text-dark dark:text-slate-100 transition-colors duration-200">
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

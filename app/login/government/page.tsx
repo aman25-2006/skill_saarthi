@@ -21,7 +21,13 @@ import {
   Brain,
   Landmark,
   FileCheck,
+  Sun,
+  Moon,
+  Globe,
 } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { SupportedLanguage } from '@/context/translations';
 
 type OfficerAuthMode = 'signin' | 'request-access';
 type StepNumber = 1 | 2 | 3;
@@ -99,6 +105,8 @@ const DEPARTMENTS = [
 
 export default function GovernmentOfficerAuthPage() {
   const router = useRouter();
+  const { theme, toggleTheme } = useTheme();
+  const { language, setLanguage, languages } = useLanguage();
 
   // Mode: Sign In (default) or Request Access / Onboarding
   const [authMode, setAuthMode] = useState<OfficerAuthMode>('signin');
@@ -324,9 +332,9 @@ export default function GovernmentOfficerAuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50/50 via-white to-amber-50/30 flex flex-col justify-between selection:bg-saffron selection:text-white">
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-slate-950 text-slate-100' : 'bg-gradient-to-br from-orange-50/50 via-white to-amber-50/30 text-slate-800'} flex flex-col justify-between selection:bg-saffron selection:text-white transition-colors duration-200`}>
       {/* Top Government Platform Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
+      <header className={`${theme === 'dark' ? 'bg-slate-900/95 border-slate-800' : 'bg-white border-gray-200'} border-b shadow-sm sticky top-0 z-40 transition-colors duration-200`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
           <Link
             href="/"
@@ -337,28 +345,57 @@ export default function GovernmentOfficerAuthPage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-primary-navy text-base leading-none">
+                <span className="font-bold text-primary-navy dark:text-white text-base leading-none">
                   Skill Saarthi
                 </span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-orange-50 text-saffron px-2 py-0.5 rounded-full border border-orange-200">
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-orange-50 dark:bg-orange-950/40 text-saffron px-2 py-0.5 rounded-full border border-orange-200 dark:border-orange-800">
                   <Building2 size={12} />
                   Government Officer Portal
                 </span>
               </div>
-              <p className="text-[11px] text-text-muted mt-0.5">
+              <p className="text-[11px] text-text-muted dark:text-slate-400 mt-0.5">
                 Ministry of Skill Development &amp; Entrepreneurship, GoI
               </p>
             </div>
           </Link>
 
-          {/* Back to Home Button */}
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-saffron hover:text-orange-700 px-3 py-1.5 rounded-lg hover:bg-orange-50 transition-colors focus:outline-none focus:ring-2 focus:ring-saffron"
-          >
-            <ArrowLeft size={16} />
-            Back to Home
-          </Link>
+          {/* Right Controls: Back to Home + Language Selector + Theme Toggle */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link
+              href="/"
+              className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-saffron hover:text-orange-700 px-3 py-1.5 rounded-lg hover:bg-orange-50 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-saffron"
+            >
+              <ArrowLeft size={16} />
+              <span className="hidden sm:inline">Back to Home</span>
+            </Link>
+
+            {/* Language Selector */}
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-gray-200 dark:border-slate-700 text-xs font-semibold">
+              <Globe size={13} className="text-saffron ml-1" />
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
+                className="bg-transparent text-xs font-semibold cursor-pointer focus:outline-none pr-1 text-slate-800 dark:text-slate-100"
+                aria-label="Language"
+              >
+                {languages.map((l) => (
+                  <option key={l.code} value={l.code} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">
+                    {l.native}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors border border-gray-200 dark:border-slate-700"
+              aria-label="Toggle theme"
+              title={theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+            >
+              {theme === 'dark' ? <Sun size={15} className="text-amber-400" /> : <Moon size={15} className="text-saffron" />}
+            </button>
+          </div>
         </div>
       </header>
 
@@ -374,7 +411,7 @@ export default function GovernmentOfficerAuthPage() {
           >
             <div className="space-y-6">
               {/* Official Badge */}
-              <div className="inline-flex items-center gap-2 bg-white border border-orange-200 shadow-sm px-3.5 py-1.5 rounded-full">
+              <div className="inline-flex items-center gap-2 bg-white dark:bg-slate-800 border border-orange-200 dark:border-slate-700 shadow-sm px-3.5 py-1.5 rounded-full">
                 <span className="w-2.5 h-2.5 rounded-full bg-saffron animate-pulse" />
                 <span className="text-xs font-semibold text-saffron tracking-wide uppercase">
                   Authorized Government Access • Restricted
@@ -382,74 +419,74 @@ export default function GovernmentOfficerAuthPage() {
               </div>
 
               <div>
-                <h1 className="text-3xl lg:text-4xl font-bold text-primary-navy leading-tight tracking-tight">
+                <h1 className="text-3xl lg:text-4xl font-bold text-primary-navy dark:text-white leading-tight tracking-tight">
                   Outcome Telemetry &amp; <br />
                   <span className="text-saffron">Macro Policy Governance</span>
                 </h1>
-                <p className="mt-3 text-base text-text-muted leading-relaxed">
+                <p className="mt-3 text-base text-text-muted dark:text-slate-400 leading-relaxed">
                   Real-time visibility into training provider performance, cohort wage outcomes, skill gap trends, and scheme impact assessment across 700+ districts.
                 </p>
               </div>
 
               {/* 4 Key Government Capabilities */}
-              <div className="bg-white/90 backdrop-blur border border-orange-100 rounded-2xl p-6 shadow-md space-y-4">
-                <p className="text-xs font-bold text-primary-navy uppercase tracking-wider flex items-center gap-2">
+              <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur border border-orange-100 dark:border-slate-700 rounded-2xl p-6 shadow-md space-y-4">
+                <p className="text-xs font-bold text-primary-navy dark:text-white uppercase tracking-wider flex items-center gap-2">
                   <Landmark size={15} className="text-saffron" />
                   National Executive Telemetry Pillars
                 </p>
 
                 <div className="space-y-3.5">
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-orange-50 text-saffron flex items-center justify-center font-bold text-xs border border-orange-200 shadow-xs flex-shrink-0 mt-0.5">
+                    <div className="w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-950/40 text-saffron flex items-center justify-center font-bold text-xs border border-orange-200 dark:border-orange-900/40 shadow-xs flex-shrink-0 mt-0.5">
                       <BarChart3 size={16} />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-text-dark leading-none">
+                      <p className="text-sm font-semibold text-text-dark dark:text-slate-200 leading-none">
                         Cohort Analytics &amp; Outcomes
                       </p>
-                      <p className="text-xs text-text-muted mt-1">
+                      <p className="text-xs text-text-muted dark:text-slate-400 mt-1">
                         Track longitudinal employment, wage progression, and scheme retention.
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-orange-50 text-saffron flex items-center justify-center font-bold text-xs border border-orange-200 shadow-xs flex-shrink-0 mt-0.5">
+                    <div className="w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-950/40 text-saffron flex items-center justify-center font-bold text-xs border border-orange-200 dark:border-orange-900/40 shadow-xs flex-shrink-0 mt-0.5">
                       <FileCheck size={16} />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-text-dark leading-none">
+                      <p className="text-sm font-semibold text-text-dark dark:text-slate-200 leading-none">
                         Training Provider Auditing
                       </p>
-                      <p className="text-xs text-text-muted mt-1">
+                      <p className="text-xs text-text-muted dark:text-slate-400 mt-1">
                         Real-time inspection of partner centers, NCVET compliance, and dropouts.
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-orange-50 text-saffron flex items-center justify-center font-bold text-xs border border-orange-200 shadow-xs flex-shrink-0 mt-0.5">
+                    <div className="w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-950/40 text-saffron flex items-center justify-center font-bold text-xs border border-orange-200 dark:border-orange-900/40 shadow-xs flex-shrink-0 mt-0.5">
                       <Brain size={16} />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-text-dark leading-none">
+                      <p className="text-sm font-semibold text-text-dark dark:text-slate-200 leading-none">
                         AI Macro Insights &amp; Alerts
                       </p>
-                      <p className="text-xs text-text-muted mt-1">
+                      <p className="text-xs text-text-muted dark:text-slate-400 mt-1">
                         Automated policy alerts highlighting sector-specific industry shortages.
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-orange-50 text-saffron flex items-center justify-center font-bold text-xs border border-orange-200 shadow-xs flex-shrink-0 mt-0.5">
+                    <div className="w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-950/40 text-saffron flex items-center justify-center font-bold text-xs border border-orange-200 dark:border-orange-900/40 shadow-xs flex-shrink-0 mt-0.5">
                       <TrendingUp size={16} />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-text-dark leading-none">
+                      <p className="text-sm font-semibold text-text-dark dark:text-slate-200 leading-none">
                         State &amp; District Telemetry
                       </p>
-                      <p className="text-xs text-text-muted mt-1">
+                      <p className="text-xs text-text-muted dark:text-slate-400 mt-1">
                         Cross-jurisdictional benchmarking for SSDM, DEO, and Central ministries.
                       </p>
                     </div>
@@ -459,22 +496,22 @@ export default function GovernmentOfficerAuthPage() {
 
               {/* Trust Callouts */}
               <div className="grid grid-cols-2 gap-3 pt-2">
-                <div className="bg-white border border-gray-200 rounded-xl p-3.5 shadow-sm">
+                <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3.5 shadow-sm">
                   <div className="flex items-center gap-2 text-saffron font-semibold text-sm">
                     <Shield size={16} />
                     <span>Parichay SSO Ready</span>
                   </div>
-                  <p className="text-xs text-text-muted mt-1">
+                  <p className="text-xs text-text-muted dark:text-slate-400 mt-1">
                     Integrated with Government of India single sign-on architecture.
                   </p>
                 </div>
 
-                <div className="bg-white border border-gray-200 rounded-xl p-3.5 shadow-sm">
+                <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl p-3.5 shadow-sm">
                   <div className="flex items-center gap-2 text-success-green font-semibold text-sm">
                     <CheckCircle2 size={16} />
                     <span>NIC Data Compliant</span>
                   </div>
-                  <p className="text-xs text-text-muted mt-1">
+                  <p className="text-xs text-text-muted dark:text-slate-400 mt-1">
                     Encrypted telemetry compliant with national data standards.
                   </p>
                 </div>
@@ -482,7 +519,7 @@ export default function GovernmentOfficerAuthPage() {
             </div>
 
             {/* Support Note */}
-            <div className="pt-4 border-t border-gray-200/80 text-xs text-text-muted">
+            <div className="pt-4 border-t border-gray-200/80 dark:border-slate-800 text-xs text-text-muted dark:text-slate-400">
               Official officer support hotline:{' '}
               <a href="mailto:gov-support@skillsaarthi.gov.in" className="text-saffron font-semibold hover:underline">
                 gov-support@skillsaarthi.gov.in
@@ -497,22 +534,22 @@ export default function GovernmentOfficerAuthPage() {
             transition={{ duration: 0.5, ease: 'easeOut' }}
             className="lg:col-span-7 w-full max-w-xl mx-auto"
           >
-            <div className="bg-white rounded-2xl shadow-xl border border-orange-200 overflow-hidden relative">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-orange-200 dark:border-slate-700 overflow-hidden relative">
               {/* Saffron tricolor top border accent */}
               <div className="h-1.5 bg-gradient-to-r from-saffron via-amber-400 to-orange-600 w-full" />
 
               {/* Card Header & Tab Switcher */}
               {!isSuccess && (
-                <div className="p-6 sm:p-8 pb-4 border-b border-gray-100 bg-gradient-to-b from-orange-50/40 to-white">
+                <div className="p-6 sm:p-8 pb-4 border-b border-gray-100 dark:border-slate-700 bg-gradient-to-b from-orange-50/40 to-white dark:from-slate-800 dark:to-slate-800">
                   <div className="text-center sm:text-left mb-6">
-                    <div className="inline-flex items-center gap-2 text-xs font-semibold text-saffron bg-orange-50 border border-orange-200 px-3 py-1 rounded-full mb-2">
+                    <div className="inline-flex items-center gap-2 text-xs font-semibold text-saffron bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 px-3 py-1 rounded-full mb-2">
                       <Building2 size={14} />
                       Government Officer Portal
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-bold text-primary-navy tracking-tight">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-primary-navy dark:text-white tracking-tight">
                       {authMode === 'signin' ? 'Officer Sign In' : 'Request Officer Access'}
                     </h2>
-                    <p className="text-sm text-text-muted mt-1">
+                    <p className="text-sm text-text-muted dark:text-slate-400 mt-1">
                       {authMode === 'signin'
                         ? 'Enter your official government credentials to access the analytics portal.'
                         : 'Submit your departmental credentials for portal accreditation.'}
@@ -520,7 +557,7 @@ export default function GovernmentOfficerAuthPage() {
                   </div>
 
                   {/* Mode Switcher Tabs */}
-                  <div className="grid grid-cols-2 bg-gray-100 p-1 rounded-xl relative">
+                  <div className="grid grid-cols-2 bg-gray-100 dark:bg-slate-700/60 p-1 rounded-xl relative">
                     <button
                       type="button"
                       onClick={() => {
@@ -529,8 +566,8 @@ export default function GovernmentOfficerAuthPage() {
                       }}
                       className={`py-2.5 text-sm font-semibold rounded-lg transition-all relative z-10 ${
                         authMode === 'signin'
-                          ? 'bg-white text-saffron shadow-sm'
-                          : 'text-text-muted hover:text-text-dark'
+                          ? 'bg-white dark:bg-slate-900 text-saffron shadow-sm'
+                          : 'text-text-muted dark:text-slate-400 hover:text-text-dark dark:hover:text-slate-200'
                       }`}
                     >
                       Officer Sign In
@@ -544,8 +581,8 @@ export default function GovernmentOfficerAuthPage() {
                       }}
                       className={`py-2.5 text-sm font-semibold rounded-lg transition-all relative z-10 ${
                         authMode === 'request-access'
-                          ? 'bg-white text-saffron shadow-sm'
-                          : 'text-text-muted hover:text-text-dark'
+                          ? 'bg-white dark:bg-slate-900 text-saffron shadow-sm'
+                          : 'text-text-muted dark:text-slate-400 hover:text-text-dark dark:hover:text-slate-200'
                       }`}
                     >
                       Request Access
@@ -1410,7 +1447,7 @@ export default function GovernmentOfficerAuthPage() {
       </main>
 
       {/* Official Government Footer */}
-      <footer className="py-4 border-t border-gray-200 bg-white text-center text-xs text-text-muted">
+      <footer className="py-4 border-t border-gray-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-center text-xs text-text-muted dark:text-slate-400">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p>
             © {new Date().getFullYear()} Skill Saarthi • Ministry of Skill Development &amp; Entrepreneurship, Government of India

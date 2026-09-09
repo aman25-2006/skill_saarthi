@@ -21,7 +21,13 @@ import {
   Plus,
   Sliders,
   FileSpreadsheet,
+  Sun,
+  Moon,
+  Globe,
 } from 'lucide-react';
+import { useTheme } from '@/context/ThemeContext';
+import { useLanguage } from '@/context/LanguageContext';
+import { SupportedLanguage } from '@/context/translations';
 
 type AdminTabType =
   | 'overview'
@@ -53,6 +59,8 @@ interface SystemService {
 
 export default function AdminPortalPage() {
   const router = useRouter();
+  const { theme, toggleTheme } = useTheme();
+  const { language, setLanguage, languages } = useLanguage();
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<AdminTabType>('overview');
@@ -214,11 +222,21 @@ export default function AdminPortalPage() {
     router.push('/login/admin');
   };
 
+  const adminTabDefinitions: { id: AdminTabType; label: string; labels: Record<string, string>; icon: React.ComponentType<{ size?: number | string; className?: string }> }[] = [
+    { id: 'overview', label: 'System Ops & Health', labels: { en: 'System Ops & Health', hi: 'सिस्टम स्वास्थ्य व संचालन', mr: 'सिस्टम आरोग्य व ऑपरेशन्स' }, icon: Activity },
+    { id: 'users', label: 'User & Access (RBAC)', labels: { en: 'User & Access', hi: 'उपयोगकर्ता व अनुमति', mr: 'वापरकर्ते व प्रवेश' }, icon: Users },
+    { id: 'policy', label: 'Global Evidence Policy', labels: { en: 'Global Evidence Policy', hi: 'राष्ट्रीय साक्ष्य नीति', mr: 'राष्ट्रीय पुरावा धोरण' }, icon: Sliders },
+    { id: 'ingestion', label: 'Data Pipelines & Ingestion', labels: { en: 'Data Ingestion', hi: 'डेटा इनजेशन व पाइपलाइन', mr: 'डेटा अंतर्ग्रहण' }, icon: Database },
+    { id: 'security', label: 'DPDP & Privacy Ledger', labels: { en: 'DPDP & Privacy Ledger', hi: 'डीपीडीपी लेजर', mr: 'डीपीडीपी नोंदवही' }, icon: Shield },
+    { id: 'providers', label: 'Provider Registry Admin', labels: { en: 'Provider Registry', hi: 'प्रदाता मान्यता रजिस्ट्री', mr: 'संस्था नोंदणी' }, icon: Building },
+    { id: 'audit', label: 'System Audit Logs', labels: { en: 'System Audit Logs', hi: 'सिस्टम ऑडिट लॉग्स', mr: 'सिस्टम ऑडिट नोंदी' }, icon: FileSpreadsheet },
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-between selection:bg-rose-500 selection:text-white">
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-slate-900 text-slate-100' : 'bg-slate-50 text-slate-900'} flex flex-col justify-between selection:bg-rose-500 selection:text-white transition-colors duration-200`}>
       {/* 1. TOP OFFICIAL CENTRAL OPS HEADER */}
-      <header className="bg-slate-950/90 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
+      <header className={`${theme === 'dark' ? 'bg-slate-950/90 border-slate-800' : 'bg-white border-gray-200'} border-b sticky top-0 z-40 backdrop-blur-md transition-colors duration-200`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-3">
           {/* Brand & Badge */}
           <Link
             href="/"
@@ -229,46 +247,73 @@ export default function AdminPortalPage() {
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
-                <span className="font-bold text-white text-base leading-none">
+                <span className={`font-bold ${theme === 'dark' ? 'text-white' : 'text-slate-900'} text-base leading-none`}>
                   Skill Saarthi
                 </span>
-                <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-rose-500/15 text-rose-300 px-2 py-0.5 rounded-full border border-rose-500/30">
+                <span className="inline-flex items-center gap-1 text-[11px] font-semibold bg-rose-500/15 text-rose-500 dark:text-rose-300 px-2 py-0.5 rounded-full border border-rose-500/30">
                   <Lock size={12} />
                   Central Admin Console
                 </span>
-                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-300 border border-amber-500/30">
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
                   DEMO / SYNTHETIC DATA (Section 20 Protocol)
                 </span>
               </div>
-              <p className="text-[10px] text-slate-400 mt-0.5">
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
                 National Informatics Centre (NIC) • Technical Directorate for MSDE
               </p>
             </div>
           </Link>
 
           {/* Admin Identification & Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Language Selector */}
+            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-gray-200 dark:border-slate-700 text-xs font-semibold">
+              <Globe size={14} className="text-rose-500 ml-1" />
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
+                className="bg-transparent text-xs font-semibold cursor-pointer focus:outline-none pr-1 text-slate-800 dark:text-slate-100"
+                aria-label="Language"
+              >
+                {languages.map((l) => (
+                  <option key={l.code} value={l.code} className="bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100">
+                    {l.native}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors border border-gray-200 dark:border-slate-700"
+              aria-label="Toggle theme"
+              title={theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+            >
+              {theme === 'dark' ? <Sun size={17} className="text-amber-400" /> : <Moon size={17} className="text-rose-600" />}
+            </button>
+
             <div className="hidden md:flex flex-col text-right">
-              <span className="text-xs font-bold text-slate-200 leading-tight">
+              <span className="text-xs font-bold text-slate-800 dark:text-slate-200 leading-tight">
                 {adminProfile.name}
               </span>
-              <span className="text-[10px] text-rose-400 truncate max-w-[200px]">
+              <span className="text-[10px] text-rose-500 dark:text-rose-400 truncate max-w-[200px]">
                 {adminProfile.role}
               </span>
             </div>
 
             <button
               onClick={() => showToast('Platform cache purged. All telemetry queues synchronized.')}
-              className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors focus:outline-none"
+              className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors focus:outline-none border border-gray-200 dark:border-slate-700"
               title="Purge Cache & Sync"
             >
-              <RefreshCw size={17} />
+              <RefreshCw size={16} />
             </button>
 
             <button
               onClick={handleSignOut}
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-red-400 px-3 py-1.5 rounded-lg hover:bg-red-500/10 transition-colors border border-slate-700/60"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-red-500 px-2.5 py-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors border border-gray-200 dark:border-slate-700/60"
               title="Sign Out"
             >
               <LogOut size={14} />
@@ -278,34 +323,27 @@ export default function AdminPortalPage() {
         </div>
 
         {/* 2. NAVIGATION TABS BAR */}
-        <div className="bg-slate-950 border-t border-slate-800/80 overflow-x-auto scrollbar-none">
+        <div className={`${theme === 'dark' ? 'bg-slate-950 border-slate-800/80' : 'bg-white border-gray-200'} border-t overflow-x-auto scrollbar-none transition-colors duration-200`}>
           <div className="max-w-7xl mx-auto px-4 flex gap-1 sm:gap-2 min-w-max">
-            {[
-              { id: 'overview', label: 'System Ops & Health', icon: Activity },
-              { id: 'users', label: 'User & Access (RBAC)', icon: Users },
-              { id: 'policy', label: 'Global Evidence Policy', icon: Sliders },
-              { id: 'ingestion', label: 'Data Pipelines & Ingestion', icon: Database },
-              { id: 'security', label: 'DPDP & Privacy Ledger', icon: Shield },
-              { id: 'providers', label: 'Provider Registry Admin', icon: Building },
-              { id: 'audit', label: 'System Audit Logs', icon: FileSpreadsheet },
-            ].map((tab) => {
+            {adminTabDefinitions.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
+              const currentLabel = tab.labels[language] || tab.label;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as AdminTabType)}
                   className={`flex items-center gap-1.5 py-3 px-3.5 text-xs font-semibold border-b-2 transition-all ${
                     isActive
-                      ? 'border-rose-500 text-rose-400 font-bold bg-rose-500/10'
-                      : 'border-transparent text-slate-400 hover:text-white hover:border-slate-700'
+                      ? 'border-rose-500 text-rose-500 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-500/10'
+                      : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-slate-700'
                   }`}
                 >
                   <Icon
                     size={15}
-                    className={isActive ? 'text-rose-400' : 'text-slate-400'}
+                    className={isActive ? 'text-rose-500 dark:text-rose-400' : 'text-slate-400'}
                   />
-                  <span>{tab.label}</span>
+                  <span>{currentLabel}</span>
                 </button>
               );
             })}

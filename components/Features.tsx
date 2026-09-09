@@ -4,16 +4,17 @@ import { motion } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
 import {
   Brain,
-  Briefcase,
   Clock,
   TrendingUp,
   BarChart3,
-  Zap,
+  ShieldCheck,
 } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function Features() {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -44,60 +45,57 @@ export default function Features() {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 25 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, ease: 'easeOut' },
+      transition: { duration: 0.5, ease: 'easeOut' },
     },
   };
 
   const features = [
     {
-      icon: Brain,
-      title: 'AI Skill-Gap Engine',
-      description:
-        'Analyze interview/assessment feedback and identify missing skills.',
-      gradient: 'from-blue-500 to-primary-blue',
+      icon: ShieldCheck,
+      title: t('features.feat1Title', 'Multi-Source Triangulation'),
+      description: t('features.feat1Desc', 'Cross-validates WhatsApp micro-surveys, employer attestation, salary consistency, and DigiLocker records.'),
+      gradient: 'from-blue-600 to-primary-blue',
     },
     {
-      icon: Briefcase,
-      title: 'Employment Tracking',
-      description: 'Track current employment, role, company and salary.',
-      gradient: 'from-purple-500 to-blue-500',
+      icon: Brain,
+      title: t('features.feat2Title', 'AI Skill Gap Diagnostics'),
+      description: t('features.feat2Desc', 'PIN-points exact technical defects and non-placement causes to suggest personalized bridge courses.'),
+      gradient: 'from-purple-600 to-indigo-600',
     },
     {
       icon: Clock,
-      title: 'Follow-up System',
-      description: 'Track outcomes at 3M, 6M, 12M and 24M milestones.',
+      title: t('hero.stageFollowUp', 'Follow-up System (3M, 6M, 12M, 24M)'),
+      description: t('how.step2Desc', 'Quick 30-second WhatsApp micro-surveys at Month 3, 6, 12, and 24 to check employment, wages, and challenges.'),
       gradient: 'from-saffron to-orange-600',
     },
     {
       icon: TrendingUp,
-      title: 'Wage Progression',
-      description: 'Track salary growth and career advancement over time.',
-      gradient: 'from-success-green to-green-600',
+      title: t('impact.metric4Label', 'Average Wage Progression'),
+      description: t('problem.desc', 'Continuous longitudinal wage tracking assessing career mobility over the 2-year post-certification window.'),
+      gradient: 'from-emerald-500 to-green-600',
     },
     {
       icon: BarChart3,
-      title: 'Government Analytics',
-      description:
-        'Monitor employment, retention and programme outcomes at scale.',
-      gradient: 'from-red-500 to-pink-500',
+      title: t('portals.govTitle', 'Government Officer Intelligence'),
+      description: t('portals.govDesc', 'District & state dashboards, VTP accreditation tracking, Section 14 Nashik benchmark equations, and cohort reviews.'),
+      gradient: 'from-rose-500 to-red-600',
     },
     {
-      icon: Zap,
-      title: 'AI-Powered Insights',
-      description:
-        'Identify recurring skill gaps, attrition trends and programme impact.',
-      gradient: 'from-yellow-500 to-saffron',
+      icon: ShieldCheck,
+      title: t('features.feat3Title', 'DPDP Act 2023 Consent Ledger'),
+      description: t('features.feat3Desc', 'Cryptographic consent trails ensuring all post-training outcome data is shared strictly with learner permission.'),
+      gradient: 'from-amber-500 to-saffron',
     },
   ];
 
   return (
     <section
       ref={ref}
-      className="py-16 sm:py-20 lg:py-24 bg-white"
+      className="py-16 sm:py-20 lg:py-24 bg-white dark:bg-slate-900 transition-colors duration-200"
       id="features"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -108,19 +106,22 @@ export default function Features() {
           className="space-y-12"
         >
           {/* Heading */}
-          <motion.div variants={itemVariants} className="text-center space-y-4">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-navy">
-              Everything You Need to Track What Happens After Training
+          <motion.div variants={itemVariants} className="text-center space-y-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-saffron dark:text-amber-400 bg-orange-50 dark:bg-amber-500/10 px-3 py-1 rounded-full border border-orange-200 dark:border-amber-500/20">
+              {t('features.badge', 'Engine Capabilities')}
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary-navy dark:text-white">
+              {t('features.title', 'Engineered for High-Trust Governance')}
             </h2>
-            <p className="text-lg text-text-muted max-w-2xl mx-auto">
-              Comprehensive tools for complete employment outcome tracking
+            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+              {t('why.title', 'Comprehensive tools for complete employment outcome tracking')}
             </p>
           </motion.div>
 
           {/* Features Grid */}
           <motion.div
             variants={containerVariants}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
           >
             {features.map((feature) => {
               const Icon = feature.icon;
@@ -129,49 +130,36 @@ export default function Features() {
                   key={feature.title}
                   variants={itemVariants}
                   whileHover={{
-                    y: -8,
-                    transition: { duration: 0.3 },
+                    y: -6,
+                    transition: { duration: 0.25 },
                   }}
                   className="group"
                 >
-                  <div className="relative h-full bg-gradient-to-br from-white to-light-blue rounded-2xl p-8 border border-gray-200 hover:border-primary-blue shadow-sm hover:shadow-xl transition-all cursor-pointer">
-                    {/* Gradient icon background */}
-                    <div
-                      className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform`}
-                    >
-                      <Icon size={28} className="text-white" />
+                  <div className="relative h-full bg-slate-50 dark:bg-slate-800 rounded-3xl p-7 border border-gray-200 dark:border-slate-700 hover:border-primary-blue dark:hover:border-sky-500 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between">
+                    <div>
+                      {/* Gradient icon background */}
+                      <div
+                        className={`w-13 h-13 w-12 h-12 rounded-2xl bg-gradient-to-br ${feature.gradient} flex items-center justify-center mb-5 shadow-md group-hover:scale-105 transition-transform text-white`}
+                      >
+                        <Icon size={24} />
+                      </div>
+
+                      {/* Content */}
+                      <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
+                        {feature.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        {feature.description}
+                      </p>
                     </div>
 
-                    {/* Content */}
-                    <h3 className="text-xl font-bold text-text-dark mb-3">
-                      {feature.title}
-                    </h3>
-                    <p className="text-text-muted leading-relaxed">
-                      {feature.description}
-                    </p>
-
-                    {/* Animated accent line */}
-                    <motion.div
-                      initial={{ width: 0 }}
-                      whileHover={{ width: '100%' }}
-                      transition={{ duration: 0.3 }}
-                      className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-primary-blue to-saffron rounded-b-2xl"
-                    ></motion.div>
+                    <div className="pt-4 mt-4 border-t border-gray-200/60 dark:border-slate-700/60 text-[11px] font-bold text-primary-blue dark:text-sky-400">
+                      Active Telemetry →
+                    </div>
                   </div>
                 </motion.div>
               );
             })}
-          </motion.div>
-
-          {/* CTA */}
-          <motion.div
-            variants={itemVariants}
-            className="text-center pt-8"
-          >
-            <p className="text-text-muted text-lg">
-              All features designed with government transparency and student
-              privacy in mind.
-            </p>
           </motion.div>
         </motion.div>
       </div>

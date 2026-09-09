@@ -3,10 +3,12 @@
 import { motion } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
 import { BookOpen, Zap, Search, Briefcase, Target, BarChart3 } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function HowItWorks() {
   const ref = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -28,39 +30,39 @@ export default function HowItWorks() {
   const stages = [
     {
       icon: BookOpen,
-      title: 'Training',
-      description: 'Build foundational skills',
-      color: 'from-blue-500 to-primary-blue',
+      title: t('hero.stageTraining', 'Training'),
+      description: t('how.step1Desc', 'Build foundational skills and obtain certified credential.'),
+      color: 'from-blue-600 to-primary-blue',
     },
     {
       icon: Zap,
-      title: 'Assessment',
-      description: 'Evaluate performance',
-      color: 'from-purple-500 to-blue-500',
+      title: t('hero.stageAssessment', 'Assessment'),
+      description: 'Standardized NCVET skill qualification rubrics.',
+      color: 'from-purple-600 to-indigo-600',
     },
     {
       icon: Search,
-      title: 'Skill Gap',
-      description: 'Identify missing skills',
-      color: 'from-pink-500 to-purple-500',
+      title: t('hero.stageSkillGap', 'Skill Gap'),
+      description: t('features.feat2Desc', 'AI identifies workplace gaps and non-placement causes.'),
+      color: 'from-pink-600 to-purple-600',
     },
     {
       icon: Briefcase,
-      title: 'Apprenticeship',
-      description: 'Gain real-world experience',
+      title: t('hero.stageApprenticeship', 'Apprenticeship'),
+      description: 'Hands-on industrial training & real workplace exposure.',
       color: 'from-saffron to-orange-600',
     },
     {
       icon: Target,
-      title: 'Employment',
-      description: 'Get placed in jobs',
-      color: 'from-success-green to-green-600',
+      title: t('hero.stageEmployment', 'Employment'),
+      description: t('how.step3Title', 'Triangulate verified employment & wage consistency.'),
+      color: 'from-emerald-500 to-green-600',
     },
     {
       icon: BarChart3,
-      title: 'Follow-up',
-      description: 'Track progress at 3M, 6M, 12M and 24M',
-      color: 'from-red-500 to-pink-500',
+      title: t('hero.stageFollowUp', 'Follow-up'),
+      description: t('how.step2Desc', 'Milestone survey tracking at 3M, 6M, 12M, and 24M.'),
+      color: 'from-rose-500 to-red-600',
     },
   ];
 
@@ -76,18 +78,18 @@ export default function HowItWorks() {
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
+    hidden: { opacity: 0, y: 25 },
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6, ease: 'easeOut' },
+      transition: { duration: 0.5, ease: 'easeOut' },
     },
   };
 
   return (
     <section
       ref={ref}
-      className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-light-blue to-white"
+      className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-light-blue/40 via-white to-light-blue/20 dark:from-slate-850 dark:via-slate-900 dark:to-slate-850 transition-colors duration-200"
       id="how-it-works"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -98,57 +100,52 @@ export default function HowItWorks() {
           className="space-y-12"
         >
           {/* Heading */}
-          <motion.div variants={itemVariants} className="text-center space-y-4">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-navy">
-              How It Works
+          <motion.div variants={itemVariants} className="text-center space-y-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-primary-blue dark:text-sky-400 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800">
+              {t('how.badge', 'Continuous Lifecycle')}
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-primary-navy dark:text-white">
+              {t('how.title', 'How Skill Saarthi Operates')}
             </h2>
-            <p className="text-lg text-text-muted max-w-2xl mx-auto">
-              A complete journey from training to employment and beyond
+            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto">
+              {t('solution.axiom', 'CONNECT → FOLLOW → VERIFY → MEASURE → EXPLAIN → ACT')}
             </p>
           </motion.div>
 
           {/* Desktop Timeline */}
           <div className="hidden lg:block">
-            <motion.div
-              variants={containerVariants}
-              className="relative"
-            >
+            <motion.div variants={containerVariants} className="relative">
               {/* Timeline line */}
               <motion.div
                 initial={{ scaleX: 0 }}
                 animate={inView ? { scaleX: 1 } : { scaleX: 0 }}
-                transition={{ duration: 1, delay: 0.3, ease: 'easeInOut' }}
-                className="absolute top-16 left-0 right-0 h-1 bg-gradient-to-r from-primary-blue via-saffron to-success-green origin-left"
-              ></motion.div>
+                transition={{ duration: 0.9, delay: 0.2, ease: 'easeInOut' }}
+                className="absolute top-12 left-0 right-0 h-1 bg-gradient-to-r from-primary-blue via-saffron to-emerald-500 origin-left"
+              />
 
               {/* Stages */}
-              <div className="grid grid-cols-6 gap-4">
+              <div className="grid grid-cols-6 gap-3">
                 {stages.map((stage, idx) => {
                   const Icon = stage.icon;
                   return (
                     <motion.div
                       key={stage.title}
                       variants={itemVariants}
-                      className="flex flex-col items-center"
+                      className="flex flex-col items-center text-center"
                     >
-                      {/* Icon Circle */}
                       <motion.div
                         initial={{ scale: 0 }}
                         animate={inView ? { scale: 1 } : { scale: 0 }}
-                        transition={{
-                          delay: 0.4 + idx * 0.1,
-                          duration: 0.5,
-                        }}
-                        className={`w-20 h-20 rounded-full bg-gradient-to-br ${stage.color} flex items-center justify-center mb-6 text-white shadow-lg border-4 border-white relative z-10`}
+                        transition={{ delay: 0.2 + idx * 0.08, duration: 0.4 }}
+                        className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${stage.color} flex items-center justify-center mb-4 text-white shadow-lg border-4 border-white dark:border-slate-800 relative z-10`}
                       >
-                        <Icon size={32} />
+                        <Icon size={24} />
                       </motion.div>
 
-                      {/* Text */}
-                      <h3 className="font-bold text-lg text-text-dark text-center mb-2">
+                      <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100 mb-1">
                         {stage.title}
                       </h3>
-                      <p className="text-sm text-text-muted text-center">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-3">
                         {stage.description}
                       </p>
                     </motion.div>
@@ -160,45 +157,29 @@ export default function HowItWorks() {
 
           {/* Mobile/Tablet Timeline */}
           <div className="lg:hidden">
-            <motion.div
-              variants={containerVariants}
-              className="space-y-8 relative pl-8"
-            >
-              {/* Vertical line */}
-              <motion.div
-                initial={{ scaleY: 0 }}
-                animate={inView ? { scaleY: 1 } : { scaleY: 0 }}
-                transition={{ duration: 1, delay: 0.3, ease: 'easeInOut' }}
-                className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-blue via-saffron to-success-green origin-top"
-              ></motion.div>
-
+            <motion.div variants={containerVariants} className="space-y-6 relative pl-6 border-l-2 border-primary-blue/30 dark:border-sky-500/30">
               {stages.map((stage, idx) => {
                 const Icon = stage.icon;
                 return (
                   <motion.div
                     key={stage.title}
                     variants={itemVariants}
-                    className="flex gap-6"
+                    className="flex gap-4 items-start"
                   >
-                    {/* Icon */}
-                    <motion.div
-                      initial={{ scale: 0 }}
-                      animate={inView ? { scale: 1 } : { scale: 0 }}
-                      transition={{
-                        delay: 0.4 + idx * 0.1,
-                        duration: 0.5,
-                      }}
-                      className={`w-14 h-14 rounded-full bg-gradient-to-br ${stage.color} flex items-center justify-center text-white shadow-lg border-4 border-white flex-shrink-0 relative -left-11 z-10`}
+                    <div
+                      className={`w-11 h-11 rounded-xl bg-gradient-to-br ${stage.color} flex items-center justify-center text-white shadow-md border-2 border-white dark:border-slate-800 shrink-0 relative -left-8.5 z-10`}
                     >
-                      <Icon size={24} />
-                    </motion.div>
+                      <Icon size={18} />
+                    </div>
 
-                    {/* Content */}
-                    <div className="pt-2">
-                      <h3 className="font-bold text-lg text-text-dark mb-1">
-                        {stage.title}
-                      </h3>
-                      <p className="text-sm text-text-muted">
+                    <div className="pt-0.5">
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-bold text-sm text-slate-900 dark:text-slate-100">
+                          {stage.title}
+                        </h3>
+                        <span className="text-[10px] font-mono text-slate-400">Step {idx + 1}</span>
+                      </div>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                         {stage.description}
                       </p>
                     </div>
@@ -207,17 +188,6 @@ export default function HowItWorks() {
               })}
             </motion.div>
           </div>
-
-          {/* Bottom CTA */}
-          <motion.div
-            variants={itemVariants}
-            className="text-center pt-8 border-t border-gray-200"
-          >
-            <p className="text-text-muted text-lg mb-4">
-              Each stage is continuously monitored and analysed to ensure better
-              outcomes.
-            </p>
-          </motion.div>
         </motion.div>
       </div>
     </section>

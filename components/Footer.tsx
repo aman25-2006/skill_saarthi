@@ -1,15 +1,13 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import {
-  Github,
-  Twitter,
-  Linkedin,
-  Mail,
-  ExternalLink,
-} from 'lucide-react';
+import { ExternalLink, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function Footer() {
+  const { t } = useLanguage();
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -25,7 +23,7 @@ export default function Footer() {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { duration: 0.5 },
+      transition: { duration: 0.4 },
     },
   };
 
@@ -33,48 +31,33 @@ export default function Footer() {
     {
       title: 'Skill Saarthi',
       links: [
-        { label: 'About', href: '/#about' },
-        { label: 'Mission', href: '#' },
-        { label: 'Contact', href: '#' },
+        { label: t('nav.home', 'Home'), href: '/' },
+        { label: t('nav.about', 'About'), href: '/#about' },
+        { label: t('nav.features', 'Features'), href: '/#features' },
+        { label: t('nav.howItWorks', 'How It Works'), href: '/#how-it-works' },
       ],
     },
     {
-      title: 'Quick Links',
+      title: 'Consoles & Portals',
       links: [
-        { label: 'Home', href: '/' },
-        { label: 'Features', href: '/#features' },
-        { label: 'How It Works', href: '/#how-it-works' },
-        { label: 'Impact', href: '/#impact' },
+        { label: t('nav.asStudent', 'Student Portal'), href: '/login/student' },
+        { label: t('nav.asGov', 'Government Officer Portal'), href: '/login/government' },
+        { label: t('nav.asAdmin', 'Central Admin Console'), href: '/login/admin' },
       ],
     },
     {
-      title: 'Resources',
+      title: 'Governance & Privacy',
       links: [
-        { label: 'FAQs', href: '#' },
-        { label: 'Help & Support', href: '#' },
-        { label: 'Privacy Policy', href: '#' },
-        { label: 'Terms & Conditions', href: '#' },
+        { label: 'DPDP Act 2023 Compliance', href: '/admin' },
+        { label: 'Section 10 Decision Matrix', href: '/government' },
+        { label: 'Section 20 Demo Cohort Standard', href: '/student' },
+        { label: 'DigiLocker Verification Bridge', href: '/admin' },
       ],
     },
-    {
-      title: 'Portals',
-      links: [
-        { label: 'Student Login', href: '/login/student' },
-        { label: 'Government Login', href: '/login/government' },
-        { label: 'Admin Login', href: '/login/admin' },
-      ],
-    },
-  ];
-
-  const socialLinks = [
-    { icon: Github, href: '#', label: 'GitHub' },
-    { icon: Twitter, href: '#', label: 'Twitter' },
-    { icon: Linkedin, href: '#', label: 'LinkedIn' },
-    { icon: Mail, href: 'mailto:hello@skillsaarthi.gov.in', label: 'Email' },
   ];
 
   return (
-    <footer className="bg-deep-navy text-white pt-16 sm:pt-20 lg:pt-24 pb-8">
+    <footer className="bg-slate-950 text-white pt-16 sm:pt-20 pb-8 border-t border-slate-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           variants={containerVariants}
@@ -83,22 +66,32 @@ export default function Footer() {
           viewport={{ once: true }}
         >
           {/* Main Footer Content */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-12 pb-12 border-b border-blue-700">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 mb-12 pb-12 border-b border-slate-800">
             {/* Branding Column */}
-            <motion.div variants={itemVariants} className="lg:col-span-1">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-saffron to-orange-600 rounded-lg flex items-center justify-center">
+            <motion.div variants={itemVariants} className="lg:col-span-2 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gradient-to-br from-primary-blue to-primary-navy rounded-xl flex items-center justify-center shadow-md">
                   <span className="text-white font-bold text-lg">S</span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg">Skill Saarthi</h3>
-                  <p className="text-xs text-blue-200">Track • Analyse • Build</p>
+                  <h3 className="font-bold text-lg text-white">Skill Saarthi</h3>
+                  <p className="text-xs text-saffron font-semibold">
+                    {t('nav.tagline', 'Track • Analyse • Build Better Futures')}
+                  </p>
                 </div>
               </div>
-              <p className="text-sm text-blue-200 leading-relaxed">
-                Tracking employment outcomes and measuring the real impact of
-                skilling programmes.
+
+              <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-md">
+                {t(
+                  'hero.desc',
+                  'Skill Saarthi is India\'s consent-based Outcome Intelligence Layer connecting training credentials with verified post-placement careers, retention, wage growth, and skill gap remediation.'
+                )}
               </p>
+
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-[11px] font-mono text-slate-300">
+                <ShieldCheck size={14} className="text-emerald-400" />
+                <span>Section 20 Protocol Active • DPDP Act 2023 Compliant</span>
+              </div>
             </motion.div>
 
             {/* Footer Links Columns */}
@@ -108,22 +101,24 @@ export default function Footer() {
                 variants={itemVariants}
                 className="sm:col-span-1"
               >
-                <h4 className="font-bold text-lg mb-4">{column.title}</h4>
-                <ul className="space-y-2">
+                <h4 className="font-bold text-sm text-slate-200 uppercase tracking-wider mb-4">
+                  {column.title}
+                </h4>
+                <ul className="space-y-2.5">
                   {column.links.map((link) => (
                     <li key={link.label}>
-                      <a
+                      <Link
                         href={link.href}
-                        className="text-blue-200 hover:text-saffron transition-colors text-sm flex items-center gap-1 group"
+                        className="text-slate-400 hover:text-white transition-colors text-xs flex items-center gap-1 group"
                       >
-                        {link.label}
+                        <span>{link.label}</span>
                         {link.href.startsWith('http') && (
                           <ExternalLink
                             size={12}
                             className="opacity-0 group-hover:opacity-100 transition-opacity"
                           />
                         )}
-                      </a>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -134,37 +129,20 @@ export default function Footer() {
           {/* Bottom Section */}
           <motion.div
             variants={itemVariants}
-            className="flex flex-col sm:flex-row items-center justify-between gap-6"
+            className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500"
           >
-            {/* Copyright */}
-            <div className="text-center sm:text-left">
-              <p className="text-blue-200 text-sm mb-2">
-                © 2026 Skill Saarthi. Prototype for Smart India Hackathon (SIH).
+            <div className="text-center sm:text-left space-y-1">
+              <p>
+                {t('footer.dept', 'Ministry of Skill Development & Entrepreneurship (MSDE)')} • {t('footer.gov', 'Government of India')}
               </p>
-              <p className="text-xs text-blue-300 italic">
-                Built for better skilling outcomes. Not an official Government of
-                India product.
+              <p className="text-[11px]">
+                {t('footer.partner', 'Technical Directorate: National Informatics Centre (NIC)')}
               </p>
             </div>
 
-            {/* Social Links */}
-            <div className="flex items-center gap-4">
-              {socialLinks.map((social) => {
-                const Icon = social.icon;
-                return (
-                  <motion.a
-                    key={social.label}
-                    href={social.href}
-                    whileHover={{ y: -4 }}
-                    whileTap={{ y: 0 }}
-                    className="w-10 h-10 bg-blue-700 hover:bg-saffron rounded-lg flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-saffron focus:ring-offset-deep-navy"
-                    aria-label={social.label}
-                  >
-                    <Icon size={18} />
-                  </motion.a>
-                );
-              })}
-            </div>
+            <p className="text-[11px] text-slate-400 font-mono">
+              {t('footer.rights', '© 2026 Skill Saarthi. All Rights Reserved.')}
+            </p>
           </motion.div>
         </motion.div>
       </div>
