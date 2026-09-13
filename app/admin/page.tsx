@@ -450,9 +450,9 @@ export default function AdminPortalPage() {
               </button>
             </div>
 
-            {/* LAPTOP / DESKTOP VIEW (>= 640px): Spacious full-feature navbar */}
-            <div className="hidden sm:flex items-center justify-between gap-2 py-2">
-              <div className="flex items-center gap-1.5 flex-1 overflow-x-auto scrollbar-none">
+            {/* LAPTOP / DESKTOP VIEW (>= 640px): 100% fit without horizontal sliding */}
+            <div className="hidden sm:flex items-center justify-between gap-1.5 md:gap-2 py-1.5 sm:py-2">
+              <div className="flex items-center gap-1 md:gap-1.5 flex-1 min-w-0 overflow-x-hidden">
                 {adminTabDefinitions
                   .filter((t) => t.primaryDesktop)
                   .map((tab) => {
@@ -467,17 +467,36 @@ export default function AdminPortalPage() {
                           setActiveTab(tab.id as AdminTabType);
                           setIsMoreMenuOpen(false);
                         }}
-                        className={`inline-flex items-center gap-1.5 py-2 px-3 text-xs font-semibold rounded-lg transition-all ${
+                        className={`inline-flex items-center gap-1 md:gap-1.5 py-1.5 sm:py-2 px-2 md:px-2.5 lg:px-3 text-xs font-semibold rounded-lg transition-all ${
                           isActive
                             ? 'bg-rose-600 text-white shadow-xs font-bold'
-                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                            : 'text-slate-500 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                         }`}
                       >
                         <Icon
                           size={14}
                           className={isActive ? 'text-white' : 'text-slate-400'}
                         />
-                        <span className="whitespace-nowrap">{currentLabel}</span>
+                        <span className="whitespace-nowrap">
+                          {tab.id === 'overview' ? (
+                            <>
+                              <span className="hidden lg:inline">{language === 'hi' ? 'सिस्टम ' : language === 'mr' ? 'सिस्टम ' : 'System '}</span>
+                              <span>{language === 'hi' ? 'संचालन' : language === 'mr' ? 'ऑपरेशन्स' : 'Ops & Health'}</span>
+                            </>
+                          ) : tab.id === 'policy' ? (
+                            <>
+                              <span className="hidden lg:inline">{language === 'hi' ? 'ग्लोबल ' : language === 'mr' ? 'ग्लोबल ' : 'Global '}</span>
+                              <span>{language === 'hi' ? 'साक्ष्य नीति' : language === 'mr' ? 'पुरावा धोरण' : 'Evidence Policy'}</span>
+                            </>
+                          ) : tab.id === 'security' ? (
+                            <>
+                              <span className="hidden lg:inline">DPDP &amp; </span>
+                              <span>{language === 'hi' ? 'प्राइवेसी लेजर' : language === 'mr' ? 'नोंदवही' : 'Privacy Ledger'}</span>
+                            </>
+                          ) : (
+                            currentLabel
+                          )}
+                        </span>
                       </button>
                     );
                   })}
@@ -487,7 +506,7 @@ export default function AdminPortalPage() {
               <div className="relative shrink-0" ref={moreMenuRef}>
                 <button
                   onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-                  className={`inline-flex items-center gap-1.5 py-2 px-3 text-xs font-bold rounded-lg border transition-all ${
+                  className={`inline-flex items-center gap-1.5 py-1.5 sm:py-2 px-2.5 sm:px-3 text-xs font-bold rounded-lg border transition-all ${
                     adminTabDefinitions.some((t) => t.id === activeTab && !t.primaryDesktop)
                       ? 'border-rose-500 bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-300 shadow-xs'
                       : 'border-gray-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
@@ -499,7 +518,7 @@ export default function AdminPortalPage() {
                   <span className="whitespace-nowrap">
                     {language === 'hi' ? 'अधिक' : language === 'mr' ? 'अधिक' : 'More'}
                     {adminTabDefinitions.some((t) => t.id === activeTab && !t.primaryDesktop) && (
-                      <span className="ml-1 text-rose-600 dark:text-rose-400 font-semibold truncate inline-block align-bottom">
+                      <span className="ml-1 text-rose-600 dark:text-rose-400 font-semibold truncate inline-block align-bottom max-w-[80px] md:max-w-[110px] lg:max-w-none">
                         : {adminTabDefinitions.find((t) => t.id === activeTab)?.labels[language] || adminTabDefinitions.find((t) => t.id === activeTab)?.label}
                       </span>
                     )}

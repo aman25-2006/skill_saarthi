@@ -659,9 +659,9 @@ export default function GovernmentOfficerPortalPage() {
               </button>
             </div>
 
-            {/* LAPTOP / DESKTOP VIEW (>= 640px): Spacious full-feature navbar */}
-            <div className="hidden sm:flex items-center justify-between gap-2 py-2">
-              <div className="flex items-center gap-1.5 flex-1 overflow-x-auto scrollbar-none">
+            {/* LAPTOP / DESKTOP VIEW (>= 640px): 100% fit without horizontal sliding */}
+            <div className="hidden sm:flex items-center justify-between gap-1.5 md:gap-2 py-1.5 sm:py-2">
+              <div className="flex items-center gap-1 md:gap-1.5 flex-1 min-w-0 overflow-x-hidden">
                 {govTabDefinitions
                   .filter((t) => t.primaryDesktop)
                   .map((tab) => {
@@ -676,17 +676,26 @@ export default function GovernmentOfficerPortalPage() {
                           setActiveTab(tab.id as GovTabType);
                           setIsMoreMenuOpen(false);
                         }}
-                        className={`inline-flex items-center gap-1.5 py-2 px-3 text-xs font-semibold rounded-lg transition-all ${
+                        className={`inline-flex items-center gap-1 md:gap-1.5 py-1.5 sm:py-2 px-2 md:px-2.5 lg:px-3 text-xs font-semibold rounded-lg transition-all ${
                           isActive
                             ? 'bg-saffron text-white shadow-xs font-bold'
-                            : 'text-text-muted dark:text-slate-400 hover:text-text-dark dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            : 'text-text-muted dark:text-slate-300 hover:text-text-dark dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
                         }`}
                       >
                         <Icon
                           size={14}
                           className={isActive ? 'text-white' : 'text-text-muted dark:text-slate-400'}
                         />
-                        <span className="whitespace-nowrap">{currentLabel}</span>
+                        <span className="whitespace-nowrap">
+                          {tab.id === 'skill-gaps' ? (
+                            <>
+                              <span className="hidden lg:inline">{language === 'hi' ? 'जिला ' : language === 'mr' ? 'जिल्हा ' : 'District '}</span>
+                              <span>{language === 'hi' ? 'कौशल अंतर' : language === 'mr' ? 'कौशल्य तफावत' : 'Skill Gaps'}</span>
+                            </>
+                          ) : (
+                            currentLabel
+                          )}
+                        </span>
                         {tab.id === 'ai-insights' && (
                           <span className="hidden md:inline-block w-1.5 h-1.5 rounded-full bg-amber-300 animate-pulse ml-0.5" />
                         )}
@@ -699,7 +708,7 @@ export default function GovernmentOfficerPortalPage() {
               <div className="relative shrink-0" ref={moreMenuRef}>
                 <button
                   onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-                  className={`inline-flex items-center gap-1.5 py-2 px-3 text-xs font-bold rounded-lg border transition-all ${
+                  className={`inline-flex items-center gap-1.5 py-1.5 sm:py-2 px-2.5 sm:px-3 text-xs font-bold rounded-lg border transition-all ${
                     govTabDefinitions.some((t) => t.id === activeTab && !t.primaryDesktop)
                       ? 'border-saffron bg-orange-50 dark:bg-amber-950/60 text-saffron dark:text-amber-300 shadow-xs'
                       : 'border-gray-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-text-dark dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
@@ -711,7 +720,7 @@ export default function GovernmentOfficerPortalPage() {
                   <span className="whitespace-nowrap">
                     {language === 'hi' ? 'अधिक' : language === 'mr' ? 'अधिक' : 'More'}
                     {govTabDefinitions.some((t) => t.id === activeTab && !t.primaryDesktop) && (
-                      <span className="ml-1 text-saffron dark:text-amber-400 font-semibold truncate inline-block align-bottom">
+                      <span className="ml-1 text-saffron dark:text-amber-400 font-semibold truncate inline-block align-bottom max-w-[80px] md:max-w-[110px] lg:max-w-none">
                         : {govTabDefinitions.find((t) => t.id === activeTab)?.labels[language] || govTabDefinitions.find((t) => t.id === activeTab)?.label}
                       </span>
                     )}
