@@ -609,10 +609,10 @@ export default function StudentPortalPage() {
               className="space-y-6"
             >
               {/* Top Welcome Header with Outcome Evidence Engine Badge */}
-              <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="bg-white dark:bg-slate-800/90 rounded-2xl p-6 border border-gray-200 dark:border-slate-700 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-primary-navy">
+                    <h1 className="text-2xl sm:text-3xl font-bold text-primary-navy dark:text-white">
                       Welcome back, {studentProfile.fullName}!
                     </h1>
                     <span className="bg-green-100 text-success-green border border-green-200 text-xs font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
@@ -620,14 +620,14 @@ export default function StudentPortalPage() {
                     </span>
                     <button
                       onClick={() => setShowEvidenceTrailModal(true)}
-                      className="text-[11px] font-bold text-primary-blue hover:text-deep-navy bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 hover:bg-blue-100 transition-colors"
+                      className="text-[11px] font-bold text-primary-blue hover:text-deep-navy bg-blue-50 dark:bg-blue-950/50 dark:text-sky-300 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-800 hover:bg-blue-100 transition-colors"
                     >
                       Audit Evidence Trail ({outcomeEvidence.confidenceScore}%) →
                     </button>
                   </div>
-                  <p className="text-text-muted text-sm mt-1">
+                  <p className="text-text-muted dark:text-slate-300 text-sm mt-1">
                     {studentProfile.jobRole} at{' '}
-                    <span className="font-semibold text-text-dark">{studentProfile.company}</span>{' '}
+                    <span className="font-semibold text-text-dark dark:text-white">{studentProfile.company}</span>{' '}
                     • Cohort 2024–25 (PMKVY 4.0) • DPDP Act 2023 Consent Active
                   </p>
                 </div>
@@ -879,8 +879,8 @@ export default function StudentPortalPage() {
             >
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-2xl font-bold text-primary-navy">Student Verified Profile</h2>
-                  <p className="text-xs sm:text-sm text-text-muted mt-0.5">
+                  <h2 className="text-2xl font-bold text-primary-navy dark:text-white">Student Verified Profile</h2>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-200 mt-0.5 font-medium">
                     Official learner record linked with National Skilling Registry (MSDE / NSDC).
                   </p>
                 </div>
@@ -993,8 +993,8 @@ export default function StudentPortalPage() {
             >
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-2xl font-bold text-primary-navy">My Skilling Program</h2>
-                  <p className="text-xs sm:text-sm text-text-muted mt-0.5">
+                  <h2 className="text-2xl font-bold text-primary-navy dark:text-white">My Skilling Program</h2>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-200 mt-0.5 font-medium">
                     Curriculum, training provider details, and verified completion certification.
                   </p>
                 </div>
@@ -1093,8 +1093,8 @@ export default function StudentPortalPage() {
             >
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div>
-                  <h2 className="text-2xl font-bold text-primary-navy">Skills &amp; Competency Assessment</h2>
-                  <p className="text-xs sm:text-sm text-text-muted mt-0.5">
+                  <h2 className="text-2xl font-bold text-primary-navy dark:text-white">Skills &amp; Competency Assessment</h2>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-200 mt-0.5 font-medium">
                     Verified skill inventory with live proficiency scores aligned to NCVET criteria.
                   </p>
                 </div>
@@ -1172,22 +1172,22 @@ export default function StudentPortalPage() {
             >
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div>
-                  <div className="inline-flex items-center gap-1.5 text-xs font-bold text-primary-blue bg-blue-50 px-2.5 py-0.5 rounded-full mb-1">
+                  <div className="inline-flex items-center gap-1.5 text-xs font-bold text-primary-blue bg-blue-50 dark:bg-blue-900/40 dark:text-sky-300 px-2.5 py-0.5 rounded-full mb-1">
                     <Brain size={13} /> SIH Core AI Capability
                   </div>
-                  <h2 className="text-2xl font-bold text-primary-navy">AI Skill Gap Intelligence</h2>
-                  <p className="text-xs sm:text-sm text-text-muted mt-0.5">
+                  <h2 className="text-2xl font-bold text-primary-navy dark:text-white">AI Skill Gap Intelligence</h2>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-200 mt-0.5 font-medium">
                     Compare your verified competencies against industry target roles to unlock wage progression.
                   </p>
                 </div>
 
                 {/* Target Role Selector */}
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-text-muted font-semibold">Target Job Role:</span>
+                  <span className="text-xs text-text-muted dark:text-slate-300 font-semibold">Target Job Role:</span>
                   <select
                     value={targetRole}
                     onChange={(e) => setTargetRole(e.target.value as typeof targetRole)}
-                    className="px-3 py-2 text-xs font-semibold rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-primary-blue shadow-xs"
+                    className="px-3 py-2 text-xs font-semibold rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-blue shadow-xs"
                   >
                     <option value="Full Stack Developer">Full Stack Developer</option>
                     <option value="Cloud DevOps Engineer">Cloud DevOps Engineer</option>
@@ -1328,8 +1328,8 @@ export default function StudentPortalPage() {
               className="space-y-6"
             >
               <div>
-                <h2 className="text-2xl font-bold text-primary-navy">Recommended Learning Pathways</h2>
-                <p className="text-xs sm:text-sm text-text-muted mt-0.5">
+                <h2 className="text-2xl font-bold text-primary-navy dark:text-white">Recommended Learning Pathways</h2>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-200 mt-0.5 font-medium">
                   AI-curated government-accredited courses designed to eliminate your identified skill gaps.
                 </p>
               </div>
@@ -1403,8 +1403,8 @@ export default function StudentPortalPage() {
             >
               <div className="flex justify-between items-center">
                 <div>
-                  <h2 className="text-2xl font-bold text-primary-navy">Employment &amp; Placement Record</h2>
-                  <p className="text-xs sm:text-sm text-text-muted mt-0.5">
+                  <h2 className="text-2xl font-bold text-primary-navy dark:text-white">Employment &amp; Placement Record</h2>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-200 mt-0.5 font-medium">
                     Verified employment telemetry connected to longitudinal retention tracking.
                   </p>
                 </div>
@@ -1490,11 +1490,11 @@ export default function StudentPortalPage() {
               className="space-y-6"
             >
               <div>
-                <div className="inline-flex items-center gap-1 text-xs font-bold text-saffron bg-orange-50 px-2.5 py-0.5 rounded-full mb-1">
+                <div className="inline-flex items-center gap-1 text-xs font-bold text-saffron bg-orange-50 dark:bg-amber-950/40 dark:text-amber-300 px-2.5 py-0.5 rounded-full mb-1">
                   <TrendingUp size={13} /> Pillar 2: Single Longitudinal Backbone
                 </div>
-                <h2 className="text-2xl font-bold text-primary-navy">National Outcome Passport</h2>
-                <p className="text-xs sm:text-sm text-text-muted mt-0.5">
+                <h2 className="text-2xl font-bold text-primary-navy dark:text-white">National Outcome Passport</h2>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-200 mt-0.5 font-medium">
                   The verified longitudinal record connecting your training, certification, placement, and post-skilling livelihood growth.
                 </p>
               </div>
@@ -1650,11 +1650,11 @@ export default function StudentPortalPage() {
             >
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                 <div>
-                  <div className="inline-flex items-center gap-1 text-xs font-bold text-saffron bg-orange-50 px-2.5 py-0.5 rounded-full mb-1">
+                  <div className="inline-flex items-center gap-1 text-xs font-bold text-saffron bg-orange-50 dark:bg-amber-950/40 dark:text-amber-300 px-2.5 py-0.5 rounded-full mb-1">
                     <Clock size={13} /> Longitudinal Tracking Framework
                   </div>
-                  <h2 className="text-2xl font-bold text-primary-navy">Post-Training Follow-Up Milestones</h2>
-                  <p className="text-xs sm:text-sm text-text-muted mt-0.5">
+                  <h2 className="text-2xl font-bold text-primary-navy dark:text-white">Post-Training Follow-Up Milestones</h2>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-200 mt-0.5 font-medium">
                     Standardized 3, 6, 12, and 24-month audit checkpoints to monitor job retention and career growth.
                   </p>
                 </div>
