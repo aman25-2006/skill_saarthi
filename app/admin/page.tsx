@@ -265,7 +265,7 @@ export default function AdminPortalPage() {
       desc: { en: 'Multi-source confidence weightings', hi: 'साक्ष्य नीति व वेटेज नियम', mr: 'पुरावा धोरण व नियम' },
       icon: Sliders,
       primaryDesktop: true,
-      primaryMobile: false,
+      primaryMobile: true,
     },
     {
       id: 'security' as AdminTabType,
@@ -395,142 +395,195 @@ export default function AdminPortalPage() {
           </div>
         </div>
 
-        {/* 2. NAVIGATION TABS BAR - RESPONSIVE CLEAN WITH 'MORE' DROPDOWN */}
+        {/* 2. NAVIGATION TABS BAR - RESPONSIVE DUAL-VIEW (100% PHONE FIT & SPACIOUS LAPTOP FIT) */}
         <div className={`${theme === 'dark' ? 'bg-slate-950 border-slate-800/80' : 'bg-white border-gray-200'} border-t relative z-30 transition-colors duration-200`}>
-          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-1.5 sm:gap-2">
+          <div className="max-w-7xl mx-auto px-2.5 sm:px-6 lg:px-8">
             
-            {/* Primary Visible Tabs */}
-            <div className="flex items-center gap-1 sm:gap-1.5 flex-1 overflow-x-auto scrollbar-none py-2">
-              {adminTabDefinitions.map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-                const currentLabel = tab.labels[language] || tab.label;
+            {/* MOBILE VIEW (< 640px): 100% balanced 4-column grid fitting any smartphone display without horizontal scrolling */}
+            <div className="grid grid-cols-4 gap-1 py-1.5 sm:hidden">
+              {adminTabDefinitions
+                .filter((t) => t.primaryMobile)
+                .map((tab) => {
+                  const Icon = tab.icon;
+                  const isActive = activeTab === tab.id;
+                  const mobileLabel = 
+                    tab.id === 'overview' ? (language === 'hi' ? 'सिस्टम' : language === 'mr' ? 'सिस्टम' : 'System Ops') :
+                    tab.id === 'users' ? (language === 'hi' ? 'उपयोगकर्ता' : language === 'mr' ? 'वापरकर्ते' : 'Users') :
+                    tab.id === 'policy' ? (language === 'hi' ? 'नीति' : language === 'mr' ? 'धोरण' : 'Policy') :
+                    (tab.labels[language] || tab.label);
 
-                if (!tab.primaryDesktop) return null;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        setActiveTab(tab.id as AdminTabType);
+                        setIsMoreMenuOpen(false);
+                      }}
+                      className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl text-center transition-all ${
+                        isActive
+                          ? 'bg-rose-600 text-white shadow-xs font-bold'
+                          : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
+                      }`}
+                    >
+                      <Icon size={16} className={isActive ? 'text-white' : 'text-slate-400'} />
+                      <span className="text-[10px] leading-tight truncate w-full mt-1">
+                        {mobileLabel}
+                      </span>
+                    </button>
+                  );
+                })}
 
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => {
-                      setActiveTab(tab.id as AdminTabType);
-                      setIsMoreMenuOpen(false);
-                    }}
-                    className={`${tab.primaryMobile ? 'inline-flex' : 'hidden sm:inline-flex'} items-center gap-1.5 py-2 px-2.5 sm:px-3.5 text-xs font-semibold rounded-lg transition-all ${
-                      isActive
-                        ? 'bg-rose-600 text-white shadow-xs font-bold'
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    <Icon
-                      size={14}
-                      className={isActive ? 'text-white' : 'text-slate-400'}
-                    />
-                    <span className="whitespace-nowrap">{currentLabel}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* "More ▾" Dropdown Menu */}
-            <div className="relative shrink-0 py-2" ref={moreMenuRef}>
+              {/* Mobile "More" Button */}
               <button
                 onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-                className={`inline-flex items-center gap-1.5 py-2 px-2.5 sm:px-3 text-xs font-bold rounded-lg border transition-all ${
-                  adminTabDefinitions.some((t) => t.id === activeTab && !t.primaryDesktop)
-                    ? 'border-rose-500 bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-300 shadow-xs'
-                    : 'border-gray-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
+                className={`flex flex-col items-center justify-center py-2 px-1 rounded-xl text-center border transition-all ${
+                  adminTabDefinitions.some((t) => t.id === activeTab && !t.primaryMobile)
+                    ? 'border-rose-500 bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-300 font-bold shadow-xs'
+                    : 'border-gray-200 dark:border-slate-700/80 bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300'
                 }`}
                 aria-label="More Options"
-                title="More Options"
               >
-                <MoreHorizontal size={14} />
-                <span className="whitespace-nowrap">
-                  {language === 'hi' ? 'अधिक' : language === 'mr' ? 'अधिक' : 'More'}
-                  {adminTabDefinitions.some((t) => t.id === activeTab && !t.primaryDesktop) && (
-                    <span className="ml-1 text-rose-600 dark:text-rose-400 font-semibold max-w-[90px] sm:max-w-none truncate inline-block align-bottom">
-                      : {adminTabDefinitions.find((t) => t.id === activeTab)?.labels[language] || adminTabDefinitions.find((t) => t.id === activeTab)?.label}
-                    </span>
-                  )}
+                <MoreHorizontal size={16} className={adminTabDefinitions.some((t) => t.id === activeTab && !t.primaryMobile) ? 'text-rose-600 dark:text-rose-300' : 'text-slate-400'} />
+                <span className="text-[10px] leading-tight truncate w-full mt-1 font-semibold flex items-center justify-center gap-0.5">
+                  {language === 'hi' ? 'अधिक ▾' : language === 'mr' ? 'अधिक ▾' : 'More ▾'}
                 </span>
-                <ChevronDown
-                  size={13}
-                  className={`transition-transform duration-200 ${isMoreMenuOpen ? 'rotate-180 text-rose-500 dark:text-rose-400' : 'text-slate-400'}`}
-                />
               </button>
-
-              {/* Dropdown Popover */}
-              <AnimatePresence>
-                {isMoreMenuOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 8, scale: 0.96 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute right-0 mt-2 w-72 sm:w-80 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-2xl z-50 p-2 space-y-1 overflow-hidden"
-                  >
-                    <div className="px-3 py-2 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
-                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                        {language === 'hi' ? 'केंद्रीय एडमिन कंसोल' : language === 'mr' ? 'केंद्रीय प्रशासकीय नियंत्रणे' : 'Central Admin Modules'}
-                      </span>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
-                        {language === 'hi' ? 'सुरक्षा नियंत्रण' : language === 'mr' ? 'सुरक्षा नियंत्रणे' : 'Root Ops'}
-                      </span>
-                    </div>
-
-                    <div className="max-h-80 overflow-y-auto space-y-1 p-1">
-                      {adminTabDefinitions
-                        .filter((t) => !t.primaryDesktop || !t.primaryMobile)
-                        .map((tab) => {
-                          const Icon = tab.icon;
-                          const isActive = activeTab === tab.id;
-                          const label = tab.labels[language] || tab.label;
-                          const desc = tab.desc[language] || tab.desc.en;
-
-                          return (
-                            <button
-                              key={tab.id}
-                              onClick={() => {
-                                setActiveTab(tab.id as AdminTabType);
-                                setIsMoreMenuOpen(false);
-                              }}
-                              className={`w-full flex items-start gap-3 p-2.5 rounded-xl text-left transition-all ${
-                                isActive
-                                  ? 'bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/80 text-rose-600 dark:text-rose-300'
-                                  : 'hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-700 dark:text-slate-300'
-                              } ${tab.primaryDesktop ? 'sm:hidden' : ''}`}
-                            >
-                              <div
-                                className={`p-2 rounded-lg shrink-0 ${
-                                  isActive
-                                    ? 'bg-rose-600 text-white'
-                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                                }`}
-                              >
-                                <Icon size={16} />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between">
-                                  <p className="text-xs font-bold leading-tight truncate">
-                                    {label}
-                                  </p>
-                                  {isActive && (
-                                    <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-0.5">
-                                      <Check size={12} /> Active
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-0.5 line-clamp-1">
-                                  {desc}
-                                </p>
-                              </div>
-                            </button>
-                          );
-                        })}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
             </div>
+
+            {/* LAPTOP / DESKTOP VIEW (>= 640px): Spacious full-feature navbar */}
+            <div className="hidden sm:flex items-center justify-between gap-2 py-2">
+              <div className="flex items-center gap-1.5 flex-1 overflow-x-auto scrollbar-none">
+                {adminTabDefinitions
+                  .filter((t) => t.primaryDesktop)
+                  .map((tab) => {
+                    const Icon = tab.icon;
+                    const isActive = activeTab === tab.id;
+                    const currentLabel = tab.labels[language] || tab.label;
+
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => {
+                          setActiveTab(tab.id as AdminTabType);
+                          setIsMoreMenuOpen(false);
+                        }}
+                        className={`inline-flex items-center gap-1.5 py-2 px-3 text-xs font-semibold rounded-lg transition-all ${
+                          isActive
+                            ? 'bg-rose-600 text-white shadow-xs font-bold'
+                            : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        <Icon
+                          size={14}
+                          className={isActive ? 'text-white' : 'text-slate-400'}
+                        />
+                        <span className="whitespace-nowrap">{currentLabel}</span>
+                      </button>
+                    );
+                  })}
+              </div>
+
+              {/* Desktop "More ▾" Button */}
+              <div className="relative shrink-0" ref={moreMenuRef}>
+                <button
+                  onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+                  className={`inline-flex items-center gap-1.5 py-2 px-3 text-xs font-bold rounded-lg border transition-all ${
+                    adminTabDefinitions.some((t) => t.id === activeTab && !t.primaryDesktop)
+                      ? 'border-rose-500 bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-300 shadow-xs'
+                      : 'border-gray-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
+                  }`}
+                  aria-label="More Options"
+                  title="More Options"
+                >
+                  <MoreHorizontal size={14} />
+                  <span className="whitespace-nowrap">
+                    {language === 'hi' ? 'अधिक' : language === 'mr' ? 'अधिक' : 'More'}
+                    {adminTabDefinitions.some((t) => t.id === activeTab && !t.primaryDesktop) && (
+                      <span className="ml-1 text-rose-600 dark:text-rose-400 font-semibold truncate inline-block align-bottom">
+                        : {adminTabDefinitions.find((t) => t.id === activeTab)?.labels[language] || adminTabDefinitions.find((t) => t.id === activeTab)?.label}
+                      </span>
+                    )}
+                  </span>
+                  <ChevronDown
+                    size={13}
+                    className={`transition-transform duration-200 ${isMoreMenuOpen ? 'rotate-180 text-rose-500 dark:text-rose-400' : 'text-slate-400'}`}
+                  />
+                </button>
+              </div>
+            </div>
+
+            {/* SHARED FULLY RESPONSIVE DROPDOWN POPOVER (Fits Phone margins or Desktop Anchor) */}
+            <AnimatePresence>
+              {isMoreMenuOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                  transition={{ duration: 0.15 }}
+                  className="fixed sm:absolute inset-x-3 sm:inset-x-auto sm:right-4 mt-2 sm:w-80 max-w-[calc(100vw-24px)] bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-2xl z-50 p-2 space-y-1 overflow-hidden"
+                >
+                  <div className="px-3 py-2 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      {language === 'hi' ? 'केंद्रीय एडमिन कंसोल' : language === 'mr' ? 'केंद्रीय प्रशासकीय नियंत्रणे' : 'Central Admin Modules'}
+                    </span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                      {language === 'hi' ? 'सुरक्षा नियंत्रण' : language === 'mr' ? 'सुरक्षा नियंत्रणे' : 'Root Ops'}
+                    </span>
+                  </div>
+
+                  <div className="max-h-80 overflow-y-auto space-y-1 p-1">
+                    {adminTabDefinitions
+                      .filter((t) => !t.primaryDesktop || !t.primaryMobile)
+                      .map((tab) => {
+                        const Icon = tab.icon;
+                        const isActive = activeTab === tab.id;
+                        const label = tab.labels[language] || tab.label;
+                        const desc = tab.desc[language] || tab.desc.en;
+
+                        return (
+                          <button
+                            key={tab.id}
+                            onClick={() => {
+                              setActiveTab(tab.id as AdminTabType);
+                              setIsMoreMenuOpen(false);
+                            }}
+                            className={`w-full flex items-start gap-3 p-2.5 rounded-xl text-left transition-all ${
+                              isActive
+                                ? 'bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/80 text-rose-600 dark:text-rose-300'
+                                : 'hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-700 dark:text-slate-300'
+                            } ${tab.primaryDesktop ? 'sm:hidden' : ''}`}
+                          >
+                            <div
+                              className={`p-2 rounded-lg shrink-0 ${
+                                isActive
+                                  ? 'bg-rose-600 text-white'
+                                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                              }`}
+                            >
+                              <Icon size={16} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <p className="text-xs font-bold leading-tight truncate">
+                                  {label}
+                                </p>
+                                {isActive && (
+                                  <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-0.5">
+                                    <Check size={12} /> Active
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-0.5 line-clamp-1">
+                                {desc}
+                              </p>
+                            </div>
+                          </button>
+                        );
+                      })}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
           </div>
         </div>
