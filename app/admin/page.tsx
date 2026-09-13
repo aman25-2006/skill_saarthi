@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -24,6 +24,9 @@ import {
   Sun,
   Moon,
   Globe,
+  ChevronDown,
+  MoreHorizontal,
+  Check,
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -64,6 +67,20 @@ export default function AdminPortalPage() {
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<AdminTabType>('overview');
+
+  // Responsive More Menu State
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target as Node)) {
+        setIsMoreMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Admin Profile
   const [adminProfile] = useState({
@@ -222,14 +239,70 @@ export default function AdminPortalPage() {
     router.push('/login/admin');
   };
 
-  const adminTabDefinitions: { id: AdminTabType; label: string; labels: Record<string, string>; icon: React.ComponentType<{ size?: number | string; className?: string }> }[] = [
-    { id: 'overview', label: 'System Ops & Health', labels: { en: 'System Ops & Health', hi: 'सिस्टम स्वास्थ्य व संचालन', mr: 'सिस्टम आरोग्य व ऑपरेशन्स' }, icon: Activity },
-    { id: 'users', label: 'User & Access (RBAC)', labels: { en: 'User & Access', hi: 'उपयोगकर्ता व अनुमति', mr: 'वापरकर्ते व प्रवेश' }, icon: Users },
-    { id: 'policy', label: 'Global Evidence Policy', labels: { en: 'Global Evidence Policy', hi: 'राष्ट्रीय साक्ष्य नीति', mr: 'राष्ट्रीय पुरावा धोरण' }, icon: Sliders },
-    { id: 'ingestion', label: 'Data Pipelines & Ingestion', labels: { en: 'Data Ingestion', hi: 'डेटा इनजेशन व पाइपलाइन', mr: 'डेटा अंतर्ग्रहण' }, icon: Database },
-    { id: 'security', label: 'DPDP & Privacy Ledger', labels: { en: 'DPDP & Privacy Ledger', hi: 'डीपीडीपी लेजर', mr: 'डीपीडीपी नोंदवही' }, icon: Shield },
-    { id: 'providers', label: 'Provider Registry Admin', labels: { en: 'Provider Registry', hi: 'प्रदाता मान्यता रजिस्ट्री', mr: 'संस्था नोंदणी' }, icon: Building },
-    { id: 'audit', label: 'System Audit Logs', labels: { en: 'System Audit Logs', hi: 'सिस्टम ऑडिट लॉग्स', mr: 'सिस्टम ऑडिट नोंदी' }, icon: FileSpreadsheet },
+  const adminTabDefinitions = [
+    {
+      id: 'overview' as AdminTabType,
+      label: 'System Ops & Health',
+      labels: { en: 'System Ops & Health', hi: 'सिस्टम स्वास्थ्य व संचालन', mr: 'सिस्टम आरोग्य व ऑपरेशन्स' },
+      desc: { en: 'Telemetry services & cluster latency', hi: 'सिस्टम स्वास्थ्य व लेटेंसी', mr: 'सिस्टम आरोग्य व लेटन्सी' },
+      icon: Activity,
+      primaryDesktop: true,
+      primaryMobile: true,
+    },
+    {
+      id: 'users' as AdminTabType,
+      label: 'User & Access (RBAC)',
+      labels: { en: 'User & Access', hi: 'उपयोगकर्ता व अनुमति', mr: 'वापरकर्ते व प्रवेश' },
+      desc: { en: 'RBAC officer roles & approval queue', hi: 'अधिकारी अनुमति व अनुमोदन', mr: 'अधिकारी परवानग्या व मान्यता' },
+      icon: Users,
+      primaryDesktop: true,
+      primaryMobile: true,
+    },
+    {
+      id: 'policy' as AdminTabType,
+      label: 'Global Evidence Policy',
+      labels: { en: 'Global Evidence Policy', hi: 'राष्ट्रीय साक्ष्य नीति', mr: 'राष्ट्रीय पुरावा धोरण' },
+      desc: { en: 'Multi-source confidence weightings', hi: 'साक्ष्य नीति व वेटेज नियम', mr: 'पुरावा धोरण व नियम' },
+      icon: Sliders,
+      primaryDesktop: true,
+      primaryMobile: false,
+    },
+    {
+      id: 'security' as AdminTabType,
+      label: 'DPDP & Privacy Ledger',
+      labels: { en: 'DPDP & Privacy Ledger', hi: 'डीपीडीपी लेजर', mr: 'डीपीडीपी नोंदवही' },
+      desc: { en: 'DPDP Act 2023 consent hashes & logs', hi: 'डीपीडीपी सहमति व ऑडिट लेजर', mr: 'डीपीडीपी संमती नोंदी' },
+      icon: Shield,
+      primaryDesktop: true,
+      primaryMobile: false,
+    },
+    {
+      id: 'ingestion' as AdminTabType,
+      label: 'Data Pipelines & Ingestion',
+      labels: { en: 'Data Ingestion', hi: 'डेटा इनजेशन व पाइपलाइन', mr: 'डेटा अंतर्ग्रहण' },
+      desc: { en: 'API connectors & sync frequencies', hi: 'डेटा पाइपलाइन व सिंक', mr: 'डेटा पाइपलाइन व समन्वय' },
+      icon: Database,
+      primaryDesktop: false,
+      primaryMobile: false,
+    },
+    {
+      id: 'providers' as AdminTabType,
+      label: 'Provider Registry Admin',
+      labels: { en: 'Provider Registry', hi: 'प्रदाता मान्यता रजिस्ट्री', mr: 'संस्था नोंदणी' },
+      desc: { en: 'Accredited training center registry', hi: 'संस्था मान्यता रजिस्ट्री', mr: 'संस्था मान्यता नोंदणी' },
+      icon: Building,
+      primaryDesktop: false,
+      primaryMobile: false,
+    },
+    {
+      id: 'audit' as AdminTabType,
+      label: 'System Audit Logs',
+      labels: { en: 'System Audit Logs', hi: 'सिस्टम ऑडिट लॉग्स', mr: 'सिस्टम ऑडिट नोंदी' },
+      desc: { en: 'Immutable system event log trail', hi: 'सिस्टम ऑडिट व सुरक्षा लॉग्स', mr: 'सिस्टम ऑडिट नोंदी' },
+      icon: FileSpreadsheet,
+      primaryDesktop: false,
+      primaryMobile: false,
+    },
   ];
 
   return (
@@ -322,31 +395,143 @@ export default function AdminPortalPage() {
           </div>
         </div>
 
-        {/* 2. NAVIGATION TABS BAR */}
-        <div className={`${theme === 'dark' ? 'bg-slate-950 border-slate-800/80' : 'bg-white border-gray-200'} border-t overflow-x-auto scrollbar-none transition-colors duration-200`}>
-          <div className="max-w-7xl mx-auto px-4 flex gap-1 sm:gap-2 min-w-max">
-            {adminTabDefinitions.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              const currentLabel = tab.labels[language] || tab.label;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as AdminTabType)}
-                  className={`flex items-center gap-1.5 py-3 px-3.5 text-xs font-semibold border-b-2 transition-all ${
-                    isActive
-                      ? 'border-rose-500 text-rose-500 dark:text-rose-400 font-bold bg-rose-50 dark:bg-rose-500/10'
-                      : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-gray-300 dark:hover:border-slate-700'
-                  }`}
-                >
-                  <Icon
-                    size={15}
-                    className={isActive ? 'text-rose-500 dark:text-rose-400' : 'text-slate-400'}
-                  />
-                  <span>{currentLabel}</span>
-                </button>
-              );
-            })}
+        {/* 2. NAVIGATION TABS BAR - RESPONSIVE CLEAN WITH 'MORE' DROPDOWN */}
+        <div className={`${theme === 'dark' ? 'bg-slate-950 border-slate-800/80' : 'bg-white border-gray-200'} border-t relative z-30 transition-colors duration-200`}>
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-1.5 sm:gap-2">
+            
+            {/* Primary Visible Tabs */}
+            <div className="flex items-center gap-1 sm:gap-1.5 flex-1 overflow-x-auto scrollbar-none py-2">
+              {adminTabDefinitions.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                const currentLabel = tab.labels[language] || tab.label;
+
+                if (!tab.primaryDesktop) return null;
+
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setActiveTab(tab.id as AdminTabType);
+                      setIsMoreMenuOpen(false);
+                    }}
+                    className={`${tab.primaryMobile ? 'inline-flex' : 'hidden sm:inline-flex'} items-center gap-1.5 py-2 px-2.5 sm:px-3.5 text-xs font-semibold rounded-lg transition-all ${
+                      isActive
+                        ? 'bg-rose-600 text-white shadow-xs font-bold'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <Icon
+                      size={14}
+                      className={isActive ? 'text-white' : 'text-slate-400'}
+                    />
+                    <span className="whitespace-nowrap">{currentLabel}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* "More ▾" Dropdown Menu */}
+            <div className="relative shrink-0 py-2" ref={moreMenuRef}>
+              <button
+                onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+                className={`inline-flex items-center gap-1.5 py-2 px-2.5 sm:px-3 text-xs font-bold rounded-lg border transition-all ${
+                  adminTabDefinitions.some((t) => t.id === activeTab && !t.primaryDesktop)
+                    ? 'border-rose-500 bg-rose-50 dark:bg-rose-950/60 text-rose-600 dark:text-rose-300 shadow-xs'
+                    : 'border-gray-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
+                }`}
+                aria-label="More Options"
+                title="More Options"
+              >
+                <MoreHorizontal size={14} />
+                <span className="whitespace-nowrap">
+                  {language === 'hi' ? 'अधिक' : language === 'mr' ? 'अधिक' : 'More'}
+                  {adminTabDefinitions.some((t) => t.id === activeTab && !t.primaryDesktop) && (
+                    <span className="ml-1 text-rose-600 dark:text-rose-400 font-semibold max-w-[90px] sm:max-w-none truncate inline-block align-bottom">
+                      : {adminTabDefinitions.find((t) => t.id === activeTab)?.labels[language] || adminTabDefinitions.find((t) => t.id === activeTab)?.label}
+                    </span>
+                  )}
+                </span>
+                <ChevronDown
+                  size={13}
+                  className={`transition-transform duration-200 ${isMoreMenuOpen ? 'rotate-180 text-rose-500 dark:text-rose-400' : 'text-slate-400'}`}
+                />
+              </button>
+
+              {/* Dropdown Popover */}
+              <AnimatePresence>
+                {isMoreMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2 w-72 sm:w-80 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-2xl z-50 p-2 space-y-1 overflow-hidden"
+                  >
+                    <div className="px-3 py-2 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        {language === 'hi' ? 'केंद्रीय एडमिन कंसोल' : language === 'mr' ? 'केंद्रीय प्रशासकीय नियंत्रणे' : 'Central Admin Modules'}
+                      </span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                        {language === 'hi' ? 'सुरक्षा नियंत्रण' : language === 'mr' ? 'सुरक्षा नियंत्रणे' : 'Root Ops'}
+                      </span>
+                    </div>
+
+                    <div className="max-h-80 overflow-y-auto space-y-1 p-1">
+                      {adminTabDefinitions
+                        .filter((t) => !t.primaryDesktop || !t.primaryMobile)
+                        .map((tab) => {
+                          const Icon = tab.icon;
+                          const isActive = activeTab === tab.id;
+                          const label = tab.labels[language] || tab.label;
+                          const desc = tab.desc[language] || tab.desc.en;
+
+                          return (
+                            <button
+                              key={tab.id}
+                              onClick={() => {
+                                setActiveTab(tab.id as AdminTabType);
+                                setIsMoreMenuOpen(false);
+                              }}
+                              className={`w-full flex items-start gap-3 p-2.5 rounded-xl text-left transition-all ${
+                                isActive
+                                  ? 'bg-rose-50 dark:bg-rose-950/50 border border-rose-200 dark:border-rose-800/80 text-rose-600 dark:text-rose-300'
+                                  : 'hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-700 dark:text-slate-300'
+                              } ${tab.primaryDesktop ? 'sm:hidden' : ''}`}
+                            >
+                              <div
+                                className={`p-2 rounded-lg shrink-0 ${
+                                  isActive
+                                    ? 'bg-rose-600 text-white'
+                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                }`}
+                              >
+                                <Icon size={16} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-xs font-bold leading-tight truncate">
+                                    {label}
+                                  </p>
+                                  {isActive && (
+                                    <span className="text-[10px] font-bold text-rose-600 dark:text-rose-400 flex items-center gap-0.5">
+                                      <Check size={12} /> Active
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-0.5 line-clamp-1">
+                                  {desc}
+                                </p>
+                              </div>
+                            </button>
+                          );
+                        })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
           </div>
         </div>
       </header>

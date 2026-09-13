@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -31,6 +31,9 @@ import {
   Sun,
   Moon,
   Globe,
+  ChevronDown,
+  MoreHorizontal,
+  Check,
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -91,6 +94,20 @@ export default function GovernmentOfficerPortalPage() {
   const [showNotificationsDrawer, setShowNotificationsDrawer] = useState<boolean>(false);
   const [showOfficerSettingsModal, setShowOfficerSettingsModal] = useState<boolean>(false);
   const [reportToast, setReportToast] = useState<string>('');
+
+  // Responsive More Menu State
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target as Node)) {
+        setIsMoreMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Configurable Evidence Policy State (Pillar 4)
   const [evidencePolicy, setEvidencePolicy] = useState({
@@ -325,19 +342,115 @@ export default function GovernmentOfficerPortalPage() {
     router.push('/login/government');
   };
 
-  const govTabDefinitions: { id: GovTabType; label: string; labels: Record<string, string>; icon: React.ComponentType<{ size?: number | string; className?: string }> }[] = [
-    { id: 'dashboard', label: 'Dashboard', labels: { en: 'Dashboard', hi: 'डैशबोर्ड', mr: 'डॅशबोर्ड' }, icon: BarChart3 },
-    { id: 'students', label: 'Student Management', labels: { en: 'Students', hi: 'छात्र प्रबंधन', mr: 'विद्यार्थी व्यवस्थापन' }, icon: Users },
-    { id: 'programs', label: 'Training Programs', labels: { en: 'Programs', hi: 'प्रशिक्षण कार्यक्रम', mr: 'प्रशिक्षण कार्यक्रम' }, icon: Award },
-    { id: 'providers', label: 'Training Providers', labels: { en: 'Providers', hi: 'प्रशिक्षण प्रदाता', mr: 'संस्था व्यवस्थापन' }, icon: Building },
-    { id: 'skill-gaps', label: 'Skill Gap Analytics', labels: { en: 'Skill Gaps', hi: 'कौशल अंतर', mr: 'कौशल्य तफावत' }, icon: Brain },
-    { id: 'employment', label: 'Employment Analytics', labels: { en: 'Employment', hi: 'रोजगार विश्लेषण', mr: 'रोजगार विश्लेषण' }, icon: Briefcase },
-    { id: 'wage-career', label: 'Wage & Career', labels: { en: 'Wage & Career', hi: 'वेतन व करियर', mr: 'वेतन व कारकीर्द' }, icon: TrendingUp },
-    { id: 'follow-up', label: 'Follow-Up Monitoring', labels: { en: 'Follow-Ups', hi: 'फॉलो-अप मॉनिटरिंग', mr: 'पाठपुरावा नियंत्रण' }, icon: Clock },
-    { id: 'impact', label: 'Impact & ROI', labels: { en: 'Impact & ROI', hi: 'प्रभाव व आरओआई', mr: 'प्रभाव व परतावा' }, icon: Landmark },
-    { id: 'reports', label: 'Reports & Export', labels: { en: 'Reports', hi: 'रिपोर्ट्स व निर्यात', mr: 'अहवाल व निर्यात' }, icon: FileText },
-    { id: 'alerts', label: 'Policy Flags', labels: { en: 'Policy Flags', hi: 'नीतिगत अलर्ट', mr: 'धोरणात्मक इशारे' }, icon: AlertCircle },
-    { id: 'ai-insights', label: 'AI Macro Insights', labels: { en: 'AI Insights', hi: 'एआई इनसाइट्स', mr: 'एआय विश्लेषण' }, icon: Sparkles },
+  const govTabDefinitions = [
+    {
+      id: 'dashboard' as GovTabType,
+      label: 'Macro Overview',
+      labels: { en: 'Dashboard', hi: 'डैशबोर्ड', mr: 'डॅशबोर्ड' },
+      desc: { en: 'State telemetry & evidence KPIs', hi: 'राज्य अवलोकन व मुख्य मेट्रिक्स', mr: 'राज्य विहंगावलोकन व मेट्रिक्स' },
+      icon: BarChart3,
+      primaryDesktop: true,
+      primaryMobile: true,
+    },
+    {
+      id: 'students' as GovTabType,
+      label: 'Student Management',
+      labels: { en: 'Students', hi: 'छात्र प्रबंधन', mr: 'विद्यार्थी व्यवस्थापन' },
+      desc: { en: 'Longitudinal learner roster & audits', hi: 'शिक्षार्थी रिकॉर्ड व साक्ष्य सत्यापन', mr: 'विद्यार्थी नोंदी व पुरावा पडताळणी' },
+      icon: Users,
+      primaryDesktop: true,
+      primaryMobile: true,
+    },
+    {
+      id: 'skill-gaps' as GovTabType,
+      label: 'Skill Gap Analytics',
+      labels: { en: 'Skill Gaps', hi: 'कौशल अंतर', mr: 'कौशल्य तफावत' },
+      desc: { en: 'District & sector mismatch telemetry', hi: 'क्षेत्रीय कौशल अंतर विश्लेषण', mr: 'विभागीय कौशल्य तफावत विश्लेषण' },
+      icon: Brain,
+      primaryDesktop: true,
+      primaryMobile: false,
+    },
+    {
+      id: 'employment' as GovTabType,
+      label: 'Employment Analytics',
+      labels: { en: 'Employment', hi: 'रोजगार विश्लेषण', mr: 'रोजगार विश्लेषण' },
+      desc: { en: 'Placement verification & retention', hi: 'रोजगार टिकून राहणे व सत्यापन', mr: 'रोजगार टिकून राहणे व पडताळणी' },
+      icon: Briefcase,
+      primaryDesktop: true,
+      primaryMobile: false,
+    },
+    {
+      id: 'ai-insights' as GovTabType,
+      label: 'AI Macro Insights',
+      labels: { en: 'AI Insights', hi: 'एआई इनसाइट्स', mr: 'एआय विश्लेषण' },
+      desc: { en: 'AI policy intelligence & forecast', hi: 'नीतिगत एआई सिफारिशें', mr: 'धोरणात्मक एआय शिफारसी' },
+      icon: Sparkles,
+      primaryDesktop: true,
+      primaryMobile: true,
+    },
+    {
+      id: 'programs' as GovTabType,
+      label: 'Training Programs',
+      labels: { en: 'Programs', hi: 'प्रशिक्षण कार्यक्रम', mr: 'प्रशिक्षण कार्यक्रम' },
+      desc: { en: 'PMKVY / NCVET curricula tracking', hi: 'पीएमकेवीवाई पाठ्यक्रम व पूर्णता', mr: 'पीएमकेव्हीवाय अभ्यासक्रम नोंद' },
+      icon: Award,
+      primaryDesktop: false,
+      primaryMobile: false,
+    },
+    {
+      id: 'providers' as GovTabType,
+      label: 'Training Providers',
+      labels: { en: 'Providers', hi: 'प्रशिक्षण प्रदाता', mr: 'संस्था व्यवस्थापन' },
+      desc: { en: 'Center accreditation & outcome scoring', hi: 'संस्था जवाबदेही व ऑडिट', mr: 'संस्था उत्तरदायित्व व ऑडिट' },
+      icon: Building,
+      primaryDesktop: false,
+      primaryMobile: false,
+    },
+    {
+      id: 'wage-career' as GovTabType,
+      label: 'Wage & Career',
+      labels: { en: 'Wage & Career', hi: 'वेतन व करियर', mr: 'वेतन व कारकीर्द' },
+      desc: { en: 'Salary increment & trajectory', hi: 'वेतन वृद्धि व करियर मार्ग', mr: 'पगार वाढ व कारकीर्द प्रगती' },
+      icon: TrendingUp,
+      primaryDesktop: false,
+      primaryMobile: false,
+    },
+    {
+      id: 'follow-up' as GovTabType,
+      label: 'Follow-Up Monitoring',
+      labels: { en: 'Follow-Ups', hi: 'फॉलो-अप मॉनिटरिंग', mr: 'पाठपुरावा नियंत्रण' },
+      desc: { en: '3, 6, 12, 24M scheduled surveys', hi: 'नियमित फॉलो-अप सर्वेक्षण', mr: 'नियमित पाठपुरावा सर्वेक्षण' },
+      icon: Clock,
+      primaryDesktop: false,
+      primaryMobile: false,
+    },
+    {
+      id: 'impact' as GovTabType,
+      label: 'Impact & ROI',
+      labels: { en: 'Impact & ROI', hi: 'प्रभाव व आरओआई', mr: 'प्रभाव व परतावा' },
+      desc: { en: 'Public skilling expenditure ROI', hi: 'सार्वजनिक खर्च व वित्तीय लाभ', mr: 'सार्वजनिक खर्च व परतावा' },
+      icon: Landmark,
+      primaryDesktop: false,
+      primaryMobile: false,
+    },
+    {
+      id: 'reports' as GovTabType,
+      label: 'Reports & Export',
+      labels: { en: 'Reports', hi: 'रिपोर्ट्स व निर्यात', mr: 'अहवाल व निर्यात' },
+      desc: { en: 'Export state/national audit dossiers', hi: 'संसद/नीति आयोग रिपोर्ट निर्यात', mr: 'ऑडिट अहवाल व निर्यात' },
+      icon: FileText,
+      primaryDesktop: false,
+      primaryMobile: false,
+    },
+    {
+      id: 'alerts' as GovTabType,
+      label: 'Policy Flags',
+      labels: { en: 'Policy Flags', hi: 'नीतिगत अलर्ट', mr: 'धोरणात्मक इशारे' },
+      desc: { en: 'High-risk placement & compliance flags', hi: 'जोखिम चेतावनी व अनुपालन', mr: 'धोका इशारे व पडताळणी' },
+      icon: AlertCircle,
+      primaryDesktop: false,
+      primaryMobile: false,
+    },
   ];
 
   return (
@@ -492,31 +605,146 @@ export default function GovernmentOfficerPortalPage() {
           </div>
         </div>
 
-        {/* 3. NAVIGATION TABS BAR */}
-        <div className={`${theme === 'dark' ? 'bg-slate-950 border-slate-800' : 'bg-white border-gray-200'} border-b overflow-x-auto scrollbar-none transition-colors duration-200`}>
-          <div className="max-w-7xl mx-auto px-4 flex gap-1 sm:gap-2 min-w-max">
-            {govTabDefinitions.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              const currentLabel = tab.labels[language] || tab.label;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as GovTabType)}
-                  className={`flex items-center gap-1.5 py-3 px-3.5 text-xs font-semibold border-b-2 transition-all ${
-                    isActive
-                      ? 'border-saffron text-saffron dark:text-amber-400 font-bold bg-orange-50/40 dark:bg-amber-500/10'
-                      : 'border-transparent text-text-muted dark:text-slate-400 hover:text-text-dark dark:hover:text-slate-200 hover:border-gray-300 dark:hover:border-slate-700'
-                  }`}
-                >
-                  <Icon
-                    size={15}
-                    className={isActive ? 'text-saffron dark:text-amber-400' : 'text-text-muted dark:text-slate-400'}
-                  />
-                  <span>{currentLabel}</span>
-                </button>
-              );
-            })}
+        {/* 3. NAVIGATION TABS BAR - RESPONSIVE CLEAN WITH 'MORE' DROPDOWN */}
+        <div className={`${theme === 'dark' ? 'bg-slate-950 border-slate-800' : 'bg-white border-gray-200'} border-b relative z-30 transition-colors duration-200`}>
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-1.5 sm:gap-2">
+            
+            {/* Primary Visible Tabs */}
+            <div className="flex items-center gap-1 sm:gap-1.5 flex-1 overflow-x-auto scrollbar-none py-2">
+              {govTabDefinitions.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                const currentLabel = tab.labels[language] || tab.label;
+
+                if (!tab.primaryDesktop) return null;
+
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setActiveTab(tab.id as GovTabType);
+                      setIsMoreMenuOpen(false);
+                    }}
+                    className={`${tab.primaryMobile ? 'inline-flex' : 'hidden sm:inline-flex'} items-center gap-1.5 py-2 px-2.5 sm:px-3.5 text-xs font-semibold rounded-lg transition-all ${
+                      isActive
+                        ? 'bg-saffron text-white shadow-xs font-bold'
+                        : 'text-text-muted dark:text-slate-400 hover:text-text-dark dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <Icon
+                      size={14}
+                      className={isActive ? 'text-white' : 'text-text-muted dark:text-slate-400'}
+                    />
+                    <span className="whitespace-nowrap">{currentLabel}</span>
+                    {tab.id === 'ai-insights' && (
+                      <span className="hidden md:inline-block w-1.5 h-1.5 rounded-full bg-amber-300 animate-pulse ml-0.5" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* "More ▾" Dropdown Menu */}
+            <div className="relative shrink-0 py-2" ref={moreMenuRef}>
+              <button
+                onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+                className={`inline-flex items-center gap-1.5 py-2 px-2.5 sm:px-3 text-xs font-bold rounded-lg border transition-all ${
+                  govTabDefinitions.some((t) => t.id === activeTab && !t.primaryDesktop)
+                    ? 'border-saffron bg-orange-50 dark:bg-amber-950/60 text-saffron dark:text-amber-300 shadow-xs'
+                    : 'border-gray-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-text-dark dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
+                }`}
+                aria-label="More Options"
+                title="More Options"
+              >
+                <MoreHorizontal size={14} />
+                <span className="whitespace-nowrap">
+                  {language === 'hi' ? 'अधिक' : language === 'mr' ? 'अधिक' : 'More'}
+                  {govTabDefinitions.some((t) => t.id === activeTab && !t.primaryDesktop) && (
+                    <span className="ml-1 text-saffron dark:text-amber-400 font-semibold max-w-[90px] sm:max-w-none truncate inline-block align-bottom">
+                      : {govTabDefinitions.find((t) => t.id === activeTab)?.labels[language] || govTabDefinitions.find((t) => t.id === activeTab)?.label}
+                    </span>
+                  )}
+                </span>
+                <ChevronDown
+                  size={13}
+                  className={`transition-transform duration-200 ${isMoreMenuOpen ? 'rotate-180 text-saffron dark:text-amber-400' : 'text-slate-400'}`}
+                />
+              </button>
+
+              {/* Dropdown Popover */}
+              <AnimatePresence>
+                {isMoreMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2 w-72 sm:w-80 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-2xl z-50 p-2 space-y-1 overflow-hidden"
+                  >
+                    <div className="px-3 py-2 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        {language === 'hi' ? 'अतिरिक्त सरकारी विश्लेषण' : language === 'mr' ? 'अतिरिक्त प्रशासकीय विश्लेषण' : 'Advanced Analytics & Modules'}
+                      </span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                        {language === 'hi' ? 'नीति नियंत्रण' : language === 'mr' ? 'धोरण नियंत्रण' : 'Policy Control'}
+                      </span>
+                    </div>
+
+                    <div className="max-h-80 overflow-y-auto space-y-1 p-1">
+                      {govTabDefinitions
+                        .filter((t) => !t.primaryDesktop || !t.primaryMobile)
+                        .map((tab) => {
+                          const Icon = tab.icon;
+                          const isActive = activeTab === tab.id;
+                          const label = tab.labels[language] || tab.label;
+                          const desc = tab.desc[language] || tab.desc.en;
+
+                          return (
+                            <button
+                              key={tab.id}
+                              onClick={() => {
+                                setActiveTab(tab.id as GovTabType);
+                                setIsMoreMenuOpen(false);
+                              }}
+                              className={`w-full flex items-start gap-3 p-2.5 rounded-xl text-left transition-all ${
+                                isActive
+                                  ? 'bg-orange-50 dark:bg-amber-950/50 border border-orange-200 dark:border-amber-800/80 text-saffron dark:text-amber-200'
+                                  : 'hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-700 dark:text-slate-300'
+                              } ${tab.primaryDesktop ? 'sm:hidden' : ''}`}
+                            >
+                              <div
+                                className={`p-2 rounded-lg shrink-0 ${
+                                  isActive
+                                    ? 'bg-saffron text-white'
+                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                }`}
+                              >
+                                <Icon size={16} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-xs font-bold leading-tight truncate">
+                                    {label}
+                                  </p>
+                                  {isActive && (
+                                    <span className="text-[10px] font-bold text-saffron dark:text-amber-400 flex items-center gap-0.5">
+                                      <Check size={12} /> Active
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-0.5 line-clamp-1">
+                                  {desc}
+                                </p>
+                              </div>
+                            </button>
+                          );
+                        })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
           </div>
         </div>
       </header>

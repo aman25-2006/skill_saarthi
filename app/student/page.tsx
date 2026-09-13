@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -31,6 +31,8 @@ import {
   Moon,
   Globe,
   Star,
+  ChevronDown,
+  MoreHorizontal,
 } from 'lucide-react';
 import { useTheme } from '@/context/ThemeContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -78,6 +80,20 @@ export default function StudentPortalPage() {
   const [showNotificationsDrawer, setShowNotificationsDrawer] = useState(false);
   const [showSettingsModal, setShowSettingsModal] = useState(false);
   const [showEvidenceTrailModal, setShowEvidenceTrailModal] = useState(false);
+
+  // Responsive More Menu State
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
+  const moreMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target as Node)) {
+        setIsMoreMenuOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Student State with local storage hydration
   const [studentProfile, setStudentProfile] = useState({
@@ -398,17 +414,97 @@ export default function StudentPortalPage() {
     router.push('/login/student');
   };
 
-  const tabDefinitions: { id: TabType; label: string; labels: Record<string, string>; icon: React.ComponentType<{ size?: number | string; className?: string }> }[] = [
-    { id: 'dashboard', label: 'Dashboard', labels: { en: 'Dashboard', hi: 'डैशबोर्ड', mr: 'डॅशबोर्ड' }, icon: BarChart3 },
-    { id: 'career', label: 'Outcome Passport', labels: { en: 'Outcome Passport', hi: 'आउटकम पासपोर्ट', mr: 'आउटकम पासपोर्ट' }, icon: TrendingUp },
-    { id: 'profile', label: 'My Profile', labels: { en: 'My Profile', hi: 'मेरी प्रोफाइल', mr: 'माझी प्रोफाइल' }, icon: User },
-    { id: 'training', label: 'My Training', labels: { en: 'My Training', hi: 'मेरा प्रशिक्षण', mr: 'माझे प्रशिक्षण' }, icon: BookOpen },
-    { id: 'skills', label: 'My Skills', labels: { en: 'My Skills', hi: 'मेरे कौशल', mr: 'माझी कौशल्ये' }, icon: Sparkles },
-    { id: 'skill-gap', label: 'AI Skill Gap', labels: { en: 'AI Skill Gap', hi: 'एआई कौशल अंतर', mr: 'एआय कौशल्य तफावत' }, icon: Brain },
-    { id: 'learning', label: 'Recommended Learning', labels: { en: 'Recommended Learning', hi: 'सुझाया गया प्रशिक्षण', mr: 'शिफारस केलेले प्रशिक्षण' }, icon: Layers },
-    { id: 'employment', label: 'Employment', labels: { en: 'Employment', hi: 'रोजगार व वेतन', mr: 'रोजगार व वेतन' }, icon: Briefcase },
-    { id: 'follow-up', label: 'Milestones & Evidence', labels: { en: 'Milestones & Evidence', hi: 'पड़ाव व साक्ष्य', mr: 'टप्पे व पुरावे' }, icon: Clock },
-    { id: 'ai-assistant', label: 'AI Assistant', labels: { en: 'AI Assistant', hi: 'एआई सहायक', mr: 'एआय सहाय्यक' }, icon: Cpu },
+  const tabDefinitions = [
+    {
+      id: 'dashboard' as TabType,
+      label: 'Dashboard',
+      labels: { en: 'Dashboard', hi: 'डैशबोर्ड', mr: 'डॅशबोर्ड' },
+      desc: { en: 'Overview & telemetry KPIs', hi: 'अवलोकन व टेलीमेट्री', mr: 'विहंगावलोकन व मेट्रिक्स' },
+      icon: BarChart3,
+      primaryDesktop: true,
+      primaryMobile: true,
+    },
+    {
+      id: 'career' as TabType,
+      label: 'Outcome Passport',
+      labels: { en: 'Outcome Passport', hi: 'आउटकम पासपोर्ट', mr: 'आउटकम पासपोर्ट' },
+      desc: { en: 'Longitudinal outcome continuity chain', hi: 'दीर्घकालिक परिणाम श्रृंखला', mr: 'दीर्घकालीन परिणाम साखळी' },
+      icon: TrendingUp,
+      primaryDesktop: true,
+      primaryMobile: false,
+    },
+    {
+      id: 'skill-gap' as TabType,
+      label: 'AI Skill Gap',
+      labels: { en: 'AI Skill Gap', hi: 'एआई कौशल अंतर', mr: 'एआय कौशल्य तफावत' },
+      desc: { en: 'Target role matching & wage progression', hi: 'कौशल अंतर व वेतन वाढ', mr: 'कौशल्य तफावत व पगार वाढ' },
+      icon: Brain,
+      primaryDesktop: true,
+      primaryMobile: true,
+    },
+    {
+      id: 'learning' as TabType,
+      label: 'Recommended Learning',
+      labels: { en: 'Recommended Learning', hi: 'सुझाया गया प्रशिक्षण', mr: 'शिफारस केलेले प्रशिक्षण' },
+      desc: { en: 'Govt accredited courses for identified gaps', hi: 'मान्यताप्राप्त अभ्यासक्रम', mr: 'मान्यताप्राप्त अभ्यासक्रम' },
+      icon: Layers,
+      primaryDesktop: true,
+      primaryMobile: false,
+    },
+    {
+      id: 'ai-assistant' as TabType,
+      label: 'AI Assistant',
+      labels: { en: 'AI Assistant', hi: 'एआई सहायक', mr: 'एआय सहाय्यक' },
+      desc: { en: '24/7 multilingual vernacular career bot', hi: '24/7 बहुभाषी करिअर मदत', mr: '24/7 बहुभाषिक करिअर मदत' },
+      icon: Cpu,
+      primaryDesktop: true,
+      primaryMobile: true,
+    },
+    {
+      id: 'profile' as TabType,
+      label: 'My Profile',
+      labels: { en: 'My Profile', hi: 'मेरी प्रोफाइल', mr: 'माझी प्रोफाइल' },
+      desc: { en: 'Learner dossier & National Registry info', hi: 'शिक्षार्थी रिकॉर्ड व माहिती', mr: 'विद्यार्थी नोंद व माहिती' },
+      icon: User,
+      primaryDesktop: false,
+      primaryMobile: false,
+    },
+    {
+      id: 'training' as TabType,
+      label: 'My Training',
+      labels: { en: 'My Training', hi: 'मेरा प्रशिक्षण', mr: 'माझे प्रशिक्षण' },
+      desc: { en: 'PMKVY batches, center & certificate', hi: 'प्रशिक्षण केंद्र व प्रमाणपत्रे', mr: 'प्रशिक्षण केंद्र व प्रमाणपत्रे' },
+      icon: BookOpen,
+      primaryDesktop: false,
+      primaryMobile: false,
+    },
+    {
+      id: 'skills' as TabType,
+      label: 'My Skills',
+      labels: { en: 'My Skills', hi: 'मेरे कौशल', mr: 'माझी कौशल्ये' },
+      desc: { en: 'Verified competency inventory & scores', hi: 'प्रमाणित कौशल्य यादी', mr: 'प्रमाणित कौशल्य यादी' },
+      icon: Sparkles,
+      primaryDesktop: false,
+      primaryMobile: false,
+    },
+    {
+      id: 'employment' as TabType,
+      label: 'Employment',
+      labels: { en: 'Employment', hi: 'रोजगार व वेतन', mr: 'रोजगार व वेतन' },
+      desc: { en: 'Verified placement & salary telemetry', hi: 'नोकरी व वेतन नोंद', mr: 'नोकरी व पगार नोंद' },
+      icon: Briefcase,
+      primaryDesktop: false,
+      primaryMobile: false,
+    },
+    {
+      id: 'follow-up' as TabType,
+      label: 'Milestones & Evidence',
+      labels: { en: 'Milestones & Evidence', hi: 'पड़ाव व साक्ष्य', mr: 'टप्पे व पुरावे' },
+      desc: { en: '3, 6, 12, 24M audit checkpoints', hi: 'दीर्घकालीन फॉलो-अप पड़ाव', mr: 'दीर्घकालीन पाठपुरावा टप्पे' },
+      icon: Clock,
+      primaryDesktop: false,
+      primaryMobile: false,
+    },
   ];
 
   return (
@@ -565,31 +661,146 @@ export default function StudentPortalPage() {
           </div>
         </div>
 
-        {/* 3. NAVIGATION TABS BAR */}
-        <div className={`${theme === 'dark' ? 'bg-slate-950 border-slate-800' : 'bg-white border-gray-200'} border-b overflow-x-auto scrollbar-none transition-colors duration-200`}>
-          <div className="max-w-7xl mx-auto px-4 flex gap-1 sm:gap-2 min-w-max">
-            {tabDefinitions.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              const currentLabel = tab.labels[language] || tab.label;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as TabType)}
-                  className={`flex items-center gap-1.5 py-3 px-3.5 text-xs font-semibold border-b-2 transition-all ${
-                    isActive
-                      ? 'border-primary-blue text-primary-navy dark:text-sky-300 font-bold bg-blue-50/40 dark:bg-sky-500/10'
-                      : 'border-transparent text-text-muted dark:text-slate-400 hover:text-text-dark dark:hover:text-slate-200 hover:border-gray-300 dark:hover:border-slate-700'
-                  }`}
-                >
-                  <Icon
-                    size={15}
-                    className={isActive ? 'text-primary-blue dark:text-sky-400' : 'text-text-muted dark:text-slate-400'}
-                  />
-                  <span>{currentLabel}</span>
-                </button>
-              );
-            })}
+        {/* 3. NAVIGATION TABS BAR - RESPONSIVE CLEAN WITH 'MORE' DROPDOWN */}
+        <div className={`${theme === 'dark' ? 'bg-slate-950 border-slate-800' : 'bg-white border-gray-200'} border-b relative z-30 transition-colors duration-200`}>
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex items-center justify-between gap-1.5 sm:gap-2">
+            
+            {/* Primary Visible Tabs */}
+            <div className="flex items-center gap-1 sm:gap-1.5 flex-1 overflow-x-auto scrollbar-none py-2">
+              {tabDefinitions.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                const currentLabel = tab.labels[language] || tab.label;
+
+                if (!tab.primaryDesktop) return null;
+
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setActiveTab(tab.id as TabType);
+                      setIsMoreMenuOpen(false);
+                    }}
+                    className={`${tab.primaryMobile ? 'inline-flex' : 'hidden sm:inline-flex'} items-center gap-1.5 py-2 px-2.5 sm:px-3.5 text-xs font-semibold rounded-lg transition-all ${
+                      isActive
+                        ? 'bg-primary-navy dark:bg-sky-500 text-white shadow-xs font-bold'
+                        : 'text-text-muted dark:text-slate-400 hover:text-text-dark dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <Icon
+                      size={14}
+                      className={isActive ? 'text-white' : 'text-text-muted dark:text-slate-400'}
+                    />
+                    <span className="whitespace-nowrap">{currentLabel}</span>
+                    {tab.id === 'ai-assistant' && (
+                      <span className="hidden md:inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-0.5" />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* "More ▾" Dropdown Menu */}
+            <div className="relative shrink-0 py-2" ref={moreMenuRef}>
+              <button
+                onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+                className={`inline-flex items-center gap-1.5 py-2 px-2.5 sm:px-3 text-xs font-bold rounded-lg border transition-all ${
+                  tabDefinitions.some((t) => t.id === activeTab && !t.primaryDesktop)
+                    ? 'border-primary-blue bg-blue-50 dark:bg-sky-950/60 text-primary-navy dark:text-sky-300 shadow-xs'
+                    : 'border-gray-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/80 text-text-dark dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700'
+                }`}
+                aria-label="More Options"
+                title="More Options"
+              >
+                <MoreHorizontal size={14} />
+                <span className="whitespace-nowrap">
+                  {language === 'hi' ? 'अधिक' : language === 'mr' ? 'अधिक' : 'More'}
+                  {tabDefinitions.some((t) => t.id === activeTab && !t.primaryDesktop) && (
+                    <span className="ml-1 text-primary-blue dark:text-sky-400 font-semibold max-w-[90px] sm:max-w-none truncate inline-block align-bottom">
+                      : {tabDefinitions.find((t) => t.id === activeTab)?.labels[language] || tabDefinitions.find((t) => t.id === activeTab)?.label}
+                    </span>
+                  )}
+                </span>
+                <ChevronDown
+                  size={13}
+                  className={`transition-transform duration-200 ${isMoreMenuOpen ? 'rotate-180 text-primary-blue dark:text-sky-400' : 'text-slate-400'}`}
+                />
+              </button>
+
+              {/* Dropdown Popover */}
+              <AnimatePresence>
+                {isMoreMenuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.96 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2 w-72 sm:w-80 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-2xl shadow-2xl z-50 p-2 space-y-1 overflow-hidden"
+                  >
+                    <div className="px-3 py-2 border-b border-gray-100 dark:border-slate-800 flex items-center justify-between">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        {language === 'hi' ? 'अन्य उपलब्ध मॉड्यूल' : language === 'mr' ? 'इतर उपलब्ध विभाग' : 'Additional Modules'}
+                      </span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                        {language === 'hi' ? 'त्वरित पहुंच' : language === 'mr' ? 'द्रुत प्रवेश' : 'Quick Access'}
+                      </span>
+                    </div>
+
+                    <div className="max-h-80 overflow-y-auto space-y-1 p-1">
+                      {tabDefinitions
+                        .filter((t) => !t.primaryDesktop || !t.primaryMobile)
+                        .map((tab) => {
+                          const Icon = tab.icon;
+                          const isActive = activeTab === tab.id;
+                          const label = tab.labels[language] || tab.label;
+                          const desc = tab.desc[language] || tab.desc.en;
+
+                          return (
+                            <button
+                              key={tab.id}
+                              onClick={() => {
+                                setActiveTab(tab.id as TabType);
+                                setIsMoreMenuOpen(false);
+                              }}
+                              className={`w-full flex items-start gap-3 p-2.5 rounded-xl text-left transition-all ${
+                                isActive
+                                  ? 'bg-blue-50 dark:bg-sky-950/50 border border-blue-200 dark:border-blue-800/80 text-primary-navy dark:text-sky-200'
+                                  : 'hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-700 dark:text-slate-300'
+                              } ${tab.primaryDesktop ? 'sm:hidden' : ''}`}
+                            >
+                              <div
+                                className={`p-2 rounded-lg shrink-0 ${
+                                  isActive
+                                    ? 'bg-primary-blue text-white'
+                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                                }`}
+                              >
+                                <Icon size={16} />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <p className="text-xs font-bold leading-tight truncate">
+                                    {label}
+                                  </p>
+                                  {isActive && (
+                                    <span className="text-[10px] font-bold text-primary-blue dark:text-sky-400 flex items-center gap-0.5">
+                                      <Check size={12} /> Active
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-[11px] text-slate-400 dark:text-slate-400 mt-0.5 line-clamp-1">
+                                  {desc}
+                                </p>
+                              </div>
+                            </button>
+                          );
+                        })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
           </div>
         </div>
       </header>
