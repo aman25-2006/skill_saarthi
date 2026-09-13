@@ -850,9 +850,9 @@ export default function GovernmentOfficerPortalPage() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="Search by Name or Student ID..."
-                      className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-saffron"
+                      className="w-full pl-9 pr-3 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-saffron"
                     />
-                    <Search size={15} className="absolute left-3 top-2.5 text-text-muted" />
+                    <Search size={15} className="absolute left-3 top-2.5 text-text-muted dark:text-slate-400" />
                   </div>
 
                   {/* Filter by Evidence Status (Pillar 1) */}
@@ -860,7 +860,7 @@ export default function GovernmentOfficerPortalPage() {
                     <select
                       value={evidenceFilter}
                       onChange={(e) => setEvidenceFilter(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-orange-200 bg-orange-50/40 text-text-dark font-semibold focus:outline-none focus:ring-2 focus:ring-saffron"
+                      className="w-full px-3 py-2 rounded-lg border border-orange-200 dark:border-amber-800/60 bg-orange-50/60 dark:bg-slate-900 text-slate-900 dark:text-amber-300 font-semibold focus:outline-none focus:ring-2 focus:ring-saffron"
                     >
                       <option value="All">All Evidence States (5 Tiers)</option>
                       <option value="Verified Outcome">🟢 Verified Outcome (≥75%)</option>
@@ -876,7 +876,7 @@ export default function GovernmentOfficerPortalPage() {
                     <select
                       value={districtFilter}
                       onChange={(e) => setDistrictFilter(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-saffron"
+                      className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-saffron"
                     >
                       <option value="All">All Districts</option>
                       <option value="Muzaffarpur">Muzaffarpur</option>
@@ -892,7 +892,7 @@ export default function GovernmentOfficerPortalPage() {
                     <select
                       value={programFilter}
                       onChange={(e) => setProgramFilter(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-saffron"
+                      className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-saffron"
                     >
                       <option value="All">All Programs</option>
                       <option value="Full Stack">Full Stack Web &amp; Cloud</option>
@@ -908,7 +908,7 @@ export default function GovernmentOfficerPortalPage() {
                     <select
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-saffron"
+                      className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-saffron"
                     >
                       <option value="All">All Reported Livelihoods</option>
                       <option value="Employed">Employed (Full-Time)</option>

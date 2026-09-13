@@ -531,13 +531,13 @@ export default function AdminPortalPage() {
 
               {/* Search Bar */}
               <div className="relative">
-                <Search size={16} className="absolute left-3.5 top-3 text-slate-500" />
+                <Search size={16} className="absolute left-3.5 top-3 text-slate-400 dark:text-slate-500" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Filter officers by name, department, or jurisdiction..."
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-slate-800/80 border border-slate-700 text-white text-xs placeholder-slate-500 focus:outline-none focus:border-rose-500 transition-colors"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white dark:bg-slate-800/80 border border-gray-300 dark:border-slate-700 text-slate-900 dark:text-white text-xs placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-rose-500 transition-colors"
                 />
               </div>
 

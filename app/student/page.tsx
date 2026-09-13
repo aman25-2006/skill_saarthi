@@ -1742,34 +1742,34 @@ export default function StudentPortalPage() {
               className="space-y-6"
             >
               <div>
-                <div className="inline-flex items-center gap-1 text-xs font-bold text-purple-600 bg-purple-50 px-2.5 py-0.5 rounded-full mb-1">
+                <div className="inline-flex items-center gap-1 text-xs font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/50 border border-purple-200 dark:border-purple-900/60 px-2.5 py-0.5 rounded-full mb-1">
                   <Cpu size={13} /> 24/7 AI Career Mentor
                 </div>
-                <h2 className="text-2xl font-bold text-primary-navy">AI Career Assistant</h2>
-                <p className="text-xs sm:text-sm text-text-muted mt-0.5">
+                <h2 className="text-2xl font-bold text-primary-navy dark:text-white">AI Career Assistant</h2>
+                <p className="text-xs sm:text-sm text-text-muted dark:text-slate-400 mt-0.5">
                   Get personalized technical interview preparation, wage navigation, and skilling guidance.
                 </p>
               </div>
 
               {/* Chat Container */}
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col h-[520px] overflow-hidden">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm flex flex-col h-[520px] overflow-hidden transition-colors">
                 {/* Chat Messages */}
-                <div className="flex-1 p-5 overflow-y-auto space-y-4 text-xs sm:text-sm">
+                <div className="flex-1 p-5 overflow-y-auto space-y-4 text-xs sm:text-sm bg-slate-50/40 dark:bg-slate-900/40">
                   {chatMessages.map((msg) => (
                     <div
                       key={msg.id}
                       className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       {msg.sender === 'assistant' && (
-                        <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0 font-bold text-xs">
+                        <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-950/60 text-purple-600 dark:text-purple-300 border border-purple-200 dark:border-purple-800 flex items-center justify-center flex-shrink-0 font-bold text-xs">
                           AI
                         </div>
                       )}
                       <div
-                        className={`p-3.5 rounded-2xl max-w-lg leading-relaxed whitespace-pre-line ${
+                        className={`p-3.5 rounded-2xl max-w-lg leading-relaxed whitespace-pre-line shadow-xs ${
                           msg.sender === 'user'
-                            ? 'bg-primary-navy text-white rounded-tr-none'
-                            : 'bg-gray-100 text-text-dark rounded-tl-none'
+                            ? 'bg-primary-navy dark:bg-primary-blue text-white rounded-tr-none'
+                            : 'bg-white dark:bg-slate-700/90 text-slate-900 dark:text-slate-100 border border-gray-200 dark:border-slate-600 rounded-tl-none'
                         }`}
                       >
                         {msg.text}
@@ -1777,7 +1777,7 @@ export default function StudentPortalPage() {
                     </div>
                   ))}
                   {isAiThinking && (
-                    <div className="flex gap-2 items-center text-xs text-text-muted italic">
+                    <div className="flex gap-2 items-center text-xs text-text-muted dark:text-slate-400 italic">
                       <span className="w-2 h-2 rounded-full bg-purple-500 animate-bounce" />
                       <span>AI Career Navigator is thinking...</span>
                     </div>
@@ -1785,29 +1785,29 @@ export default function StudentPortalPage() {
                 </div>
 
                 {/* Preset Prompt Chips */}
-                <div className="p-3 bg-gray-50 border-t border-gray-200 flex flex-wrap gap-2 text-xs">
+                <div className="p-3 bg-slate-50 dark:bg-slate-900/60 border-t border-gray-200 dark:border-slate-700 flex flex-wrap gap-2 text-xs transition-colors">
                   <button
                     onClick={() => handleSendMessage('How do I increase my salary from ₹28,000 to ₹45,000?')}
-                    className="bg-white px-3 py-1 rounded-full border border-gray-200 text-text-dark hover:border-purple-500 hover:text-purple-600 transition-colors"
+                    className="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-full border border-gray-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:border-purple-500 dark:hover:border-purple-400 hover:text-purple-600 dark:hover:text-purple-300 transition-colors shadow-xs"
                   >
                     💡 How do I reach ₹45,000/mo?
                   </button>
                   <button
                     onClick={() => handleSendMessage('Prepare me for a React.js and SQL technical interview')}
-                    className="bg-white px-3 py-1 rounded-full border border-gray-200 text-text-dark hover:border-purple-500 hover:text-purple-600 transition-colors"
+                    className="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-full border border-gray-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:border-purple-500 dark:hover:border-purple-400 hover:text-purple-600 dark:hover:text-purple-300 transition-colors shadow-xs"
                   >
                     🎯 React interview prep questions
                   </button>
                   <button
                     onClick={() => handleSendMessage('Why did my AI skill gap report recommend Docker and Kubernetes?')}
-                    className="bg-white px-3 py-1 rounded-full border border-gray-200 text-text-dark hover:border-purple-500 hover:text-purple-600 transition-colors"
+                    className="bg-white dark:bg-slate-800 px-3 py-1.5 rounded-full border border-gray-200 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:border-purple-500 dark:hover:border-purple-400 hover:text-purple-600 dark:hover:text-purple-300 transition-colors shadow-xs"
                   >
                     🐳 Why is Docker recommended?
                   </button>
                 </div>
 
                 {/* Chat Input Box */}
-                <div className="p-3 bg-white border-t border-gray-200 flex gap-2">
+                <div className="p-3 bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 flex gap-2 transition-colors">
                   <input
                     type="text"
                     value={chatInput}
@@ -1816,11 +1816,11 @@ export default function StudentPortalPage() {
                       if (e.key === 'Enter') handleSendMessage();
                     }}
                     placeholder="Ask any question about skills, jobs, or salary..."
-                    className="flex-1 px-4 py-2.5 text-xs sm:text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="flex-1 px-4 py-2.5 text-xs sm:text-sm rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all shadow-xs"
                   />
                   <button
                     onClick={() => handleSendMessage()}
-                    className="bg-primary-navy text-white px-5 py-2.5 rounded-lg text-xs font-bold hover:bg-deep-navy transition-colors flex items-center gap-1.5"
+                    className="bg-primary-navy dark:bg-purple-600 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-deep-navy dark:hover:bg-purple-700 transition-colors flex items-center gap-1.5 shadow-sm"
                   >
                     <span>Send</span>
                     <Send size={14} />
@@ -1930,17 +1930,17 @@ export default function StudentPortalPage() {
                       2. Role &amp; Monthly Income Range
                     </label>
                     <div>
-                      <span className="block font-semibold text-text-dark mb-1">Current Job Role</span>
+                      <span className="block font-semibold text-text-dark dark:text-slate-200 mb-1">Current Job Role</span>
                       <input
                         type="text"
                         value={surveyFormData.jobRole}
                         onChange={(e) => setSurveyFormData({ ...surveyFormData, jobRole: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg border border-gray-300"
+                        className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-blue"
                       />
                     </div>
 
                     <div>
-                      <span className="block font-semibold text-text-dark mb-1">Monthly Income Bracket</span>
+                      <span className="block font-semibold text-text-dark dark:text-slate-200 mb-1">Monthly Income Bracket</span>
                       <div className="grid grid-cols-2 gap-2">
                         {['Under ₹15,000', '₹15,000 – ₹25,000', '₹25,000 – ₹35,000', '₹35,000+'].map((bracket) => (
                           <button
@@ -1949,8 +1949,8 @@ export default function StudentPortalPage() {
                             onClick={() => setSurveyFormData({ ...surveyFormData, incomeBracket: bracket })}
                             className={`p-2 rounded-lg border text-center font-semibold transition-all ${
                               surveyFormData.incomeBracket === bracket
-                                ? 'bg-primary-navy text-white border-primary-navy'
-                                : 'bg-gray-50 border-gray-200 text-text-dark hover:bg-gray-100'
+                                ? 'bg-primary-navy dark:bg-primary-blue text-white border-primary-navy dark:border-primary-blue'
+                                : 'bg-gray-50 dark:bg-slate-800 border-gray-200 dark:border-slate-700 text-text-dark dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700'
                             }`}
                           >
                             {bracket}
@@ -1960,12 +1960,12 @@ export default function StudentPortalPage() {
                     </div>
 
                     <div>
-                      <span className="block font-semibold text-text-dark mb-1">Exact Verified Monthly Wage (₹)</span>
+                      <span className="block font-semibold text-text-dark dark:text-slate-200 mb-1">Exact Verified Monthly Wage (₹)</span>
                       <input
                         type="number"
                         value={surveyFormData.newSalary}
                         onChange={(e) => setSurveyFormData({ ...surveyFormData, newSalary: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg border border-gray-300 font-bold text-primary-navy"
+                        className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 font-bold text-primary-navy dark:text-sky-300 focus:outline-none focus:ring-2 focus:ring-primary-blue"
                       />
                     </div>
 
@@ -2058,7 +2058,7 @@ export default function StudentPortalPage() {
                       <select
                         value={surveyFormData.evidenceDocType}
                         onChange={(e) => setSurveyFormData({ ...surveyFormData, evidenceDocType: e.target.value })}
-                        className="w-full px-3 py-2 rounded-lg border border-gray-300 bg-white"
+                        className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-blue"
                       >
                         <option value="Salary Slip / Offer Letter">Recent Salary Slip / Offer Letter (Uploaded)</option>
                         <option value="EPFO UAN Number">EPFO UAN / Social Security Number</option>
